@@ -6,6 +6,7 @@ type TocPanelProps = {
   open: boolean;
   bookTitle?: string;
   bookAuthor?: string;
+  bookCoverUrl?: string;
   items: TocItem[];
   currentHref?: string;
   loading: boolean;
@@ -105,6 +106,7 @@ export default function TocPanel({
   open,
   bookTitle,
   bookAuthor,
+  bookCoverUrl,
   items,
   currentHref,
   loading,
@@ -202,34 +204,53 @@ export default function TocPanel({
     <div className={`toc-layer ${compact ? "is-compact" : "is-docked"}`} onClick={compact ? onClose : undefined}>
       <aside className="toc-drawer" aria-label="目录面板" onClick={(event) => event.stopPropagation()}>
         <header className="toc-drawer__toolbar">
-          <button type="button" className="toc-toolbar-btn" onClick={onClose} aria-label="收起目录">
-            ×
-          </button>
+          <div className="toc-toolbar-group">
+            <button
+              type="button"
+              className="toc-toolbar-btn"
+              onClick={() => {
+                const container = document.querySelector(".toc-drawer__body");
+                container?.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              aria-label="回到目录顶部"
+            >
+              ↑
+            </button>
+          </div>
           <h3>目录</h3>
-          <button
-            type="button"
-            className="toc-toolbar-btn"
-            onClick={() => {
-              setExpanded((prev) => {
-                if (allExpanded) {
-                  return new Set();
-                }
-                const next = new Set(prev);
-                for (const id of expandableIds) {
-                  next.add(id);
-                }
-                return next;
-              });
-            }}
-            aria-label={allExpanded ? "折叠全部章节" : "展开全部章节"}
-          >
-            {allExpanded ? "−" : "+"}
-          </button>
+          <div className="toc-toolbar-group toc-toolbar-group--right">
+            <button
+              type="button"
+              className="toc-toolbar-btn"
+              onClick={() => {
+                setExpanded((prev) => {
+                  if (allExpanded) {
+                    return new Set();
+                  }
+                  const next = new Set(prev);
+                  for (const id of expandableIds) {
+                    next.add(id);
+                  }
+                  return next;
+                });
+              }}
+              aria-label={allExpanded ? "折叠全部章节" : "展开全部章节"}
+            >
+              {allExpanded ? "▣" : "▢"}
+            </button>
+            <button type="button" className="toc-toolbar-btn" onClick={onClose} aria-label="收起目录">
+              ×
+            </button>
+          </div>
         </header>
 
         <section className="toc-drawer__book">
           <div className="toc-book__cover" aria-hidden>
-            {coverLabel}
+            {bookCoverUrl ? (
+              <img src={bookCoverUrl} alt="" loading="lazy" />
+            ) : (
+              coverLabel
+            )}
           </div>
           <div className="toc-book__meta">
             <p className="toc-book__title">{bookTitle || "未命名书籍"}</p>

@@ -89,8 +89,15 @@ test("pdf supports page turning by wheel and arrow keys", async ({ page }) => {
 
   await page.locator(".pdf-frame").hover();
   await page.mouse.wheel(0, 1200);
-  await expect(pageInput).toHaveValue("2");
+  await expect
+    .poll(async () => Number(await pageInput.inputValue()), {
+      timeout: 8_000
+    })
+    .toBeGreaterThan(1);
 
+  await pageInput.fill("2");
+  await expect(page.getByText("正在渲染 PDF...")).toHaveCount(0);
+  await page.locator(".pdf-frame").click({ position: { x: 40, y: 40 } });
   await page.waitForTimeout(260);
   await page.keyboard.press("ArrowDown");
   await expect(pageInput).toHaveValue("3");

@@ -526,6 +526,7 @@ export default function ReaderPage(): JSX.Element {
         open={tocOpen}
         bookTitle={book.title}
         bookAuthor={book.author}
+        bookCoverUrl={book.coverUrl}
         items={tocEntries}
         currentHref={currentHref}
         loading={tocLoading}

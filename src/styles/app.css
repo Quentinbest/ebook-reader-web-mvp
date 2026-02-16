@@ -550,7 +550,7 @@ textarea {
 
 .toc-drawer__toolbar {
   display: grid;
-  grid-template-columns: 32px 1fr 32px;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 0.45rem;
   padding: 0.62rem 0.72rem 0.58rem;
@@ -575,6 +575,16 @@ textarea {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.toc-toolbar-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+}
+
+.toc-toolbar-group--right {
+  justify-self: end;
+}
+
 .toc-toolbar-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.16);
 }
@@ -597,6 +607,14 @@ textarea {
   display: grid;
   place-items: center;
   font-weight: 700;
+  overflow: hidden;
+}
+
+.toc-book__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .toc-book__meta {
@@ -657,6 +675,9 @@ textarea {
   grid-template-columns: 1.5rem 1fr auto;
   align-items: center;
   gap: 0.26rem;
+  min-height: 2rem;
+  border-radius: 8px;
+  transition: background 140ms ease;
 }
 
 .toc-item__toggle {
@@ -684,8 +705,10 @@ textarea {
   width: 100%;
   border-radius: 7px;
   text-align: left;
-  font-weight: 500;
-  padding: 0.45rem 0.45rem;
+  font-size: 0.97rem;
+  font-weight: 520;
+  line-height: 1.3;
+  padding: 0.48rem 0.45rem;
   color: #dde2ea;
   background: transparent;
   white-space: nowrap;
@@ -705,8 +728,12 @@ textarea {
   padding-right: 0.24rem;
 }
 
+.toc-item.is-active > .toc-item__row {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .toc-item.is-active > .toc-item__row .toc-item__link {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.17);
   color: #ffffff;
   font-weight: 700;
 }
