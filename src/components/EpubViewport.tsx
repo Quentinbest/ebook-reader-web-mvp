@@ -125,6 +125,8 @@ export default function EpubViewport({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const renditionRef = useRef<any>(null);
   const bookRef = useRef<any>(null);
+  const locationsReadyRef = useRef(false);
+  const locationTaskTimerRef = useRef<number | null>(null);
   const callbacksRef = useRef({
     onLocationChange,
     onTocLoaded,
@@ -165,6 +167,7 @@ export default function EpubViewport({
 
     bookRef.current = book;
     renditionRef.current = rendition;
+    locationsReadyRef.current = false;
 
     const onRelocated = (location: any) => {
       const locator = location?.start?.cfi;
@@ -172,7 +175,17 @@ export default function EpubViewport({
         return;
       }
 
-      const percent = Math.max(0, Math.min(100, Math.round(book.locations.percentageFromCfi(locator) * 100)));
+      let percent = 0;
+      if (locationsReadyRef.current) {
+        const mapped = Number(book.locations.percentageFromCfi(locator));
+        percent = Number.isFinite(mapped) ? Math.round(mapped * 100) : 0;
+      } else {
+        const fallback = Number(location?.start?.percentage);
+        if (Number.isFinite(fallback)) {
+          percent = fallback <= 1 ? Math.round(fallback * 100) : Math.round(fallback);
+        }
+      }
+      percent = Math.max(0, Math.min(100, percent));
       const href = location?.start?.href;
       callbacksRef.current.onLocationChange({ locator, percent, href });
     };
@@ -187,7 +200,6 @@ export default function EpubViewport({
         callbacksRef.current.onTocError("目录加载失败");
       }
 
-      await book.locations.generate(1200);
       rendition.themes.default({ body: themeStyles } as any);
       await rendition.display();
       rendition.on("relocated", onRelocated);
@@ -196,6 +208,18 @@ export default function EpubViewport({
         setBusy(false);
         callbacksRef.current.onReadyChange(true);
       }
+
+      // Generate chapter locations after first paint to avoid blocking initial EPUB render.
+      locationTaskTimerRef.current = window.setTimeout(() => {
+        void book.locations
+          .generate(1200)
+          .then(() => {
+            locationsReadyRef.current = true;
+          })
+          .catch(() => {
+            locationsReadyRef.current = false;
+          });
+      }, 0);
     };
 
     initialize().catch(() => {
@@ -207,13 +231,17 @@ export default function EpubViewport({
 
     return () => {
       active = false;
+      if (locationTaskTimerRef.current) {
+        window.clearTimeout(locationTaskTimerRef.current);
+      }
       rendition.off("relocated", onRelocated);
       book.destroy();
       bookRef.current = null;
       renditionRef.current = null;
+      locationsReadyRef.current = false;
       callbacksRef.current.onReadyChange(false);
     };
-  }, [blob, themeStyles]);
+  }, [blob]);
 
   useEffect(() => {
     if (!renditionRef.current || !targetLocator) {
