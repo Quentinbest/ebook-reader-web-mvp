@@ -79,6 +79,12 @@ test.describe("E2E smoke", () => {
     await expect(page).toHaveURL(/\/reader\//);
     await expect(page.getByRole("heading", { name: "阅读器" })).toBeVisible();
 
+    await page.getByRole("button", { name: "目录" }).click();
+    await expect(page.getByRole("heading", { name: "目录" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Chapter 1" })).toBeVisible();
+    await page.getByRole("button", { name: "Chapter 1" }).click();
+    await expect(page.getByRole("heading", { name: "目录" })).toHaveCount(0);
+
     await page.getByLabel("引文").fill("冒烟批注引文");
     await page.getByLabel("备注").first().fill("冒烟备注");
     await page.getByRole("button", { name: "新增批注" }).click();

@@ -1,7 +1,14 @@
 declare module "epubjs" {
+  interface NavigationTocItem {
+    href: string;
+    label?: string;
+    subitems?: NavigationTocItem[];
+  }
+
   type Location = {
     start: {
       cfi: string;
+      href?: string;
     };
   };
 
@@ -31,7 +38,7 @@ declare module "epubjs" {
       cfiFromPercentage(percent: number): string;
     };
     navigation: {
-      toc: Array<{ href: string; label: string }>;
+      toc: NavigationTocItem[];
     };
     renderTo(element: HTMLElement, options: Record<string, unknown>): Rendition;
     destroy(): void;

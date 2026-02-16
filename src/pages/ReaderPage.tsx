@@ -1,21 +1,24 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import AnnotationPanel from "../components/AnnotationPanel";
 import AppShell from "../components/AppShell";
 import OfflineBadge from "../components/OfflineBadge";
 import ReaderSettingsPanel from "../components/ReaderSettingsPanel";
 import SearchPanel from "../components/SearchPanel";
+import TocPanel from "../components/TocPanel";
 import {
+  deleteAnnotation,
   getAnnotations,
   getBook,
   getBookBlob,
   getBookIndex,
+  getBookToc,
   getReaderPreferences,
   getReadingProgress,
   putAnnotation,
+  putBookToc,
   putReadingProgress,
-  setReaderPreferences,
-  deleteAnnotation
+  setReaderPreferences
 } from "../lib/db";
 import { createId } from "../lib/id";
 import { searchBook } from "../lib/search";
@@ -25,9 +28,10 @@ import type {
   AnnotationColor,
   BookMeta,
   ReaderPreferences,
-  SearchResult
+  SearchResult,
+  TocItem
 } from "../types/contracts";
-import { DEFAULT_READER_PREFERENCES } from "../types/contracts";
+import { DEFAULT_READER_PREFERENCES, TOC_CACHE_VERSION } from "../types/contracts";
 
 const EpubViewport = lazy(() => import("../components/EpubViewport"));
 const PdfViewport = lazy(() => import("../components/PdfViewport"));
@@ -42,17 +46,78 @@ export default function ReaderPage(): JSX.Element {
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [preferences, setPreferences] = useState<ReaderPreferences>(DEFAULT_READER_PREFERENCES);
   const [currentLocator, setCurrentLocator] = useState("start");
+  const [currentHref, setCurrentHref] = useState<string | undefined>(undefined);
   const [currentPercent, setCurrentPercent] = useState(0);
   const [pageCount, setPageCount] = useState(0);
   const [targetLocator, setTargetLocator] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [tocOpen, setTocOpen] = useState(false);
+  const [tocEntries, setTocEntries] = useState<TocItem[]>([]);
+  const [tocLoading, setTocLoading] = useState(false);
+  const [tocError, setTocError] = useState<string | null>(null);
+  const [tocNeedsCache, setTocNeedsCache] = useState(false);
+  const [epubReady, setEpubReady] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const noticeTimerRef = useRef<number | null>(null);
+
   const requestedLocator = useMemo(() => searchParams.get("locator") ?? undefined, [searchParams]);
+
+  const showNotice = useCallback((message: string) => {
+    setNotice(message);
+
+    if (noticeTimerRef.current) {
+      window.clearTimeout(noticeTimerRef.current);
+    }
+
+    noticeTimerRef.current = window.setTimeout(() => {
+      setNotice(null);
+    }, 2200);
+  }, []);
 
   const refreshAnnotations = useCallback(async () => {
     setAnnotations(await getAnnotations(bookId));
   }, [bookId]);
+
+  useEffect(() => {
+    return () => {
+      if (noticeTimerRef.current) {
+        window.clearTimeout(noticeTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent): void => {
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (event.key.toLowerCase() === "t") {
+        event.preventDefault();
+        setTocOpen((prev) => !prev);
+        return;
+      }
+
+      if (event.key === "Escape") {
+        setTocOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -60,15 +125,19 @@ export default function ReaderPage(): JSX.Element {
     async function load(): Promise<void> {
       setLoading(true);
       setError(null);
+      setTocOpen(false);
+      setTocError(null);
+      setCurrentHref(undefined);
 
       try {
-        const [bookMeta, fileBlob, progress, prefs, notes, index] = await Promise.all([
+        const [bookMeta, fileBlob, progress, prefs, notes, index, tocCache] = await Promise.all([
           getBook(bookId),
           getBookBlob(bookId),
           getReadingProgress(bookId),
           getReaderPreferences(),
           getAnnotations(bookId),
-          getBookIndex(bookId)
+          getBookIndex(bookId),
+          getBookToc(bookId)
         ]);
 
         if (!bookMeta || !fileBlob) {
@@ -90,6 +159,19 @@ export default function ReaderPage(): JSX.Element {
         setCurrentLocator(locator);
         setTargetLocator(locator);
         setCurrentPercent(progress?.percent ?? 0);
+
+        if (bookMeta.format === "epub") {
+          const validTocCache = tocCache && tocCache.tocVersion === TOC_CACHE_VERSION;
+          setTocEntries(validTocCache ? tocCache.entries : []);
+          setTocLoading(!validTocCache);
+          setTocNeedsCache(!validTocCache);
+          setEpubReady(false);
+        } else {
+          setTocEntries([]);
+          setTocLoading(false);
+          setTocNeedsCache(false);
+          setEpubReady(true);
+        }
 
         await track("reader_opened", {
           book_id: bookMeta.id,
@@ -210,6 +292,9 @@ export default function ReaderPage(): JSX.Element {
       subtitle={subtitle}
       rightSlot={
         <div className="reader-top-actions">
+          <button type="button" className="toc-trigger" aria-pressed={tocOpen} onClick={() => setTocOpen((prev) => !prev)}>
+            目录
+          </button>
           <OfflineBadge />
           <Link to={`/notes/${book.id}`}>批注页</Link>
         </div>
@@ -223,10 +308,37 @@ export default function ReaderPage(): JSX.Element {
                 blob={blob}
                 preferences={preferences}
                 targetLocator={targetLocator}
-                onLocationChange={({ locator, percent }) => {
+                onLocationChange={({ locator, percent, href }) => {
                   setCurrentLocator(locator);
                   setCurrentPercent(percent);
+                  if (href) {
+                    setCurrentHref(href);
+                  }
                 }}
+                onTocLoaded={(entries) => {
+                  setTocEntries(entries);
+                  setTocLoading(false);
+                  setTocError(null);
+
+                  if (tocNeedsCache) {
+                    setTocNeedsCache(false);
+                    void putBookToc({
+                      bookId: book.id,
+                      tocVersion: TOC_CACHE_VERSION,
+                      entries,
+                      updatedAt: Date.now()
+                    });
+                  }
+                }}
+                onTocError={(message) => {
+                  setTocLoading(false);
+                  setTocError((prev) => (tocEntries.length ? prev : message));
+                  if (!tocEntries.length) {
+                    showNotice(message);
+                  }
+                }}
+                onNavigationError={showNotice}
+                onReadyChange={setEpubReady}
               />
             ) : (
               <PdfViewport
@@ -266,6 +378,29 @@ export default function ReaderPage(): JSX.Element {
           />
         </aside>
       </div>
+
+      <TocPanel
+        open={tocOpen}
+        bookTitle={book.title}
+        items={tocEntries}
+        currentHref={currentHref}
+        loading={tocLoading}
+        error={tocError}
+        disabled={book.format === "epub" ? !epubReady : false}
+        onClose={() => setTocOpen(false)}
+        onNavigate={(href) => {
+          if (book.format === "epub" && !epubReady) {
+            showNotice("正在加载…");
+            return;
+          }
+
+          setTargetLocator(href);
+          setCurrentHref(href);
+          setTocOpen(false);
+        }}
+      />
+
+      {notice ? <div className="reader-toast">{notice}</div> : null}
     </AppShell>
   );
 }
