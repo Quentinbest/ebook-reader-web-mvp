@@ -361,7 +361,7 @@ export default function PdfViewport({
           disabled={!canPrev}
           onClick={() => turnPage("prev")}
         >
-          {"<"}
+          <span className="reader-page-turn__icon">{"<"}</span>
         </button>
         <div
           className="pdf-frame"
@@ -403,7 +403,7 @@ export default function PdfViewport({
           disabled={!canNext}
           onClick={() => turnPage("next")}
         >
-          {">"}
+          <span className="reader-page-turn__icon">{">"}</span>
         </button>
       </div>
     </section>

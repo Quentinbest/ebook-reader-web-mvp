@@ -368,17 +368,20 @@ textarea {
   height: 3.95rem;
   padding: 0;
   border-radius: 8px;
-  background: #d8cdb6;
-  border: 1px solid rgba(121, 108, 90, 0.18);
+  background: transparent;
+  border: 1px solid rgba(111, 103, 91, 0.26);
   color: #6f675b;
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
   display: grid;
   place-items: center;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 4px 10px rgba(39, 33, 24, 0.15);
+  box-shadow: none;
+}
+
+.reader-page-turn__icon {
+  display: inline-block;
+  transform: scaleX(1.42);
 }
 
 .reader-page-turn--left {
@@ -390,11 +393,13 @@ textarea {
 }
 
 .reader-page-turn:hover:not(:disabled) {
-  background: #cec2a9;
+  background: rgba(111, 103, 91, 0.1);
+  border-color: rgba(111, 103, 91, 0.42);
 }
 
 .reader-page-turn:active:not(:disabled) {
   transform: translateY(-50%) scale(0.97);
+  background: rgba(111, 103, 91, 0.18);
 }
 
 .reader-page-turn:disabled {

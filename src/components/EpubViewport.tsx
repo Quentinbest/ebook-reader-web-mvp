@@ -439,7 +439,7 @@ export default function EpubViewport({
           disabled={busy}
           onClick={() => turnPage("prev")}
         >
-          {"<"}
+          <span className="reader-page-turn__icon">{"<"}</span>
         </button>
         <div
           className="epub-container"
@@ -462,7 +462,7 @@ export default function EpubViewport({
           disabled={busy}
           onClick={() => turnPage("next")}
         >
-          {">"}
+          <span className="reader-page-turn__icon">{">"}</span>
         </button>
       </div>
     </section>
