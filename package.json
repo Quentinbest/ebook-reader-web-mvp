@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts tests/e2e/toc-path-repro.spec.ts tests/e2e/pdf-page-turn.spec.ts",
     "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
