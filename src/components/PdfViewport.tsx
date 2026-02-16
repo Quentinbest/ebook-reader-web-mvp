@@ -317,16 +317,12 @@ export default function PdfViewport({
     }),
     [preferences.fontFamily]
   );
+  const canPrev = page > 1 && !docLoading && !rendering;
+  const canNext = page < Math.max(effectivePageCount, 1) && !docLoading && !rendering;
 
   return (
     <section className="reader-viewport" style={pageStyle}>
       <div className="reader-controls-inline">
-        <button type="button" onClick={() => turnPage("prev")}>
-          上一页
-        </button>
-        <button type="button" onClick={() => turnPage("next")}>
-          下一页
-        </button>
         <label>
           页码
           <input
@@ -357,38 +353,58 @@ export default function PdfViewport({
         </label>
       </div>
 
-      <div
-        className="pdf-frame"
-        ref={frameRef}
-        onWheel={(event) => {
-          if (Math.abs(event.deltaY) < 6) {
-            return;
-          }
+      <div className="reader-content-stage">
+        <button
+          type="button"
+          className="reader-page-turn reader-page-turn--left"
+          aria-label="上一页"
+          disabled={!canPrev}
+          onClick={() => turnPage("prev")}
+        >
+          {"<"}
+        </button>
+        <div
+          className="pdf-frame"
+          ref={frameRef}
+          onWheel={(event) => {
+            if (Math.abs(event.deltaY) < 6) {
+              return;
+            }
 
-          const direction = event.deltaY > 0 ? "next" : "prev";
-          if (turnPageWithCooldown(direction)) {
-            event.preventDefault();
-          }
-        }}
-      >
-        {docLoading || rendering ? <p className="loading">正在渲染 PDF...</p> : null}
-        {error ? <p className="error-banner">{error}</p> : null}
-        <div className={`pdf-canvas-group ${layoutMode === "multi" ? "is-multi" : "is-single"}`}>
-          <canvas
-            ref={canvasPrimaryRef}
-            style={{
-              display: error ? "none" : "block",
-              margin: "0 auto"
-            }}
-          />
-          <canvas
-            ref={canvasSecondaryRef}
-            style={{
-              display: "none",
-              margin: "0 auto"
-            }}
-          />
+            const direction = event.deltaY > 0 ? "next" : "prev";
+            if (turnPageWithCooldown(direction)) {
+              event.preventDefault();
+            }
+          }}
+        >
+          {docLoading || rendering ? <p className="loading">正在渲染 PDF...</p> : null}
+          {error ? <p className="error-banner">{error}</p> : null}
+          <div className={`pdf-canvas-group ${layoutMode === "multi" ? "is-multi" : "is-single"}`}>
+            <canvas
+              ref={canvasPrimaryRef}
+              style={{
+                display: error ? "none" : "block",
+                margin: "0 auto"
+              }}
+            />
+            <canvas
+              ref={canvasSecondaryRef}
+              style={{
+                display: "none",
+                margin: "0 auto"
+              }}
+            />
+          </div>
         </div>
+        <button
+          type="button"
+          className="reader-page-turn reader-page-turn--right"
+          aria-label="下一页"
+          disabled={!canNext}
+          onClick={() => turnPage("next")}
+        >
+          {">"}
+        </button>
       </div>
     </section>
   );
