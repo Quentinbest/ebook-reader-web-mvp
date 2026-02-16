@@ -40,6 +40,16 @@ npx playwright install
 npm run test:e2e
 ```
 
+## GitHub Actions
+
+- `CI`: push / PR 时自动执行 `npm run test` 和 `npm run build`
+- `Deploy to GitHub Pages`: `main` 分支 push 后自动发布静态站点
+
+首次启用部署请在仓库设置中确认：
+
+1. 进入 GitHub 仓库 `Settings -> Pages`
+2. `Build and deployment` 的 `Source` 选择 `GitHub Actions`
+
 ## PRD 对应状态（P0）
 
 - FR-001/002：已实现
