@@ -744,14 +744,27 @@ textarea {
 
 .toc-drawer__footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.56rem;
+  padding: 0.44rem 0.56rem 0.52rem;
 }
 
-.toc-footer-btn {
+.toc-footer-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.46rem;
+}
+
+.toc-footer-icon-btn {
   width: 100%;
-  border-radius: 10px;
+  min-height: 34px;
+  border-radius: 9px;
+  font-size: 1rem;
+  line-height: 1;
   background: rgba(255, 255, 255, 0.1);
   color: #e8ecf3;
+}
+
+.toc-footer-icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .reader-toast {

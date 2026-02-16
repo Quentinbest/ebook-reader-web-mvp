@@ -199,43 +199,44 @@ export default function TocPanel({
   }
 
   const coverLabel = (bookTitle || "目录").trim().charAt(0) || "目";
+  const toggleExpandAll = (): void => {
+    setExpanded((prev) => {
+      if (allExpanded) {
+        return new Set();
+      }
+      const next = new Set(prev);
+      for (const id of expandableIds) {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const scrollToTop = (): void => {
+    const container = document.querySelector(".toc-drawer__body");
+    container?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const scrollToActive = (): void => {
+    if (!activeId) {
+      return;
+    }
+    const target = document.querySelector(`[data-toc-id="${activeId}"]`);
+    target?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
 
   return (
     <div className={`toc-layer ${compact ? "is-compact" : "is-docked"}`} onClick={compact ? onClose : undefined}>
       <aside className="toc-drawer" aria-label="目录面板" onClick={(event) => event.stopPropagation()}>
         <header className="toc-drawer__toolbar">
           <div className="toc-toolbar-group">
-            <button
-              type="button"
-              className="toc-toolbar-btn"
-              onClick={() => {
-                const container = document.querySelector(".toc-drawer__body");
-                container?.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              aria-label="回到目录顶部"
-            >
+            <button type="button" className="toc-toolbar-btn" onClick={scrollToTop} aria-label="回到目录顶部">
               ↑
             </button>
           </div>
           <h3>目录</h3>
           <div className="toc-toolbar-group toc-toolbar-group--right">
-            <button
-              type="button"
-              className="toc-toolbar-btn"
-              onClick={() => {
-                setExpanded((prev) => {
-                  if (allExpanded) {
-                    return new Set();
-                  }
-                  const next = new Set(prev);
-                  for (const id of expandableIds) {
-                    next.add(id);
-                  }
-                  return next;
-                });
-              }}
-              aria-label={allExpanded ? "折叠全部章节" : "展开全部章节"}
-            >
+            <button type="button" className="toc-toolbar-btn" onClick={toggleExpandAll} aria-label={allExpanded ? "折叠全部章节" : "展开全部章节"}>
               {allExpanded ? "▣" : "▢"}
             </button>
             <button type="button" className="toc-toolbar-btn" onClick={onClose} aria-label="收起目录">
@@ -294,20 +295,31 @@ export default function TocPanel({
         </section>
 
         <footer className="toc-drawer__footer">
-          <button
-            type="button"
-            className="toc-footer-btn"
-            onClick={() => {
-              if (!activeId) {
-                return;
-              }
-              const target = document.querySelector(`[data-toc-id="${activeId}"]`);
-              target?.scrollIntoView({ block: "center", behavior: "smooth" });
-            }}
-            disabled={!activeId}
-          >
-            定位当前章节
-          </button>
+          <div className="toc-footer-actions" role="toolbar" aria-label="目录操作栏">
+            <button type="button" className="toc-footer-icon-btn" onClick={scrollToTop} aria-label="回到目录顶部">
+              ⇡
+            </button>
+            <button
+              type="button"
+              className="toc-footer-icon-btn"
+              onClick={scrollToActive}
+              disabled={!activeId}
+              aria-label="定位当前章节"
+            >
+              ◎
+            </button>
+            <button
+              type="button"
+              className="toc-footer-icon-btn"
+              onClick={toggleExpandAll}
+              aria-label={allExpanded ? "折叠全部章节" : "展开全部章节"}
+            >
+              {allExpanded ? "▤" : "▥"}
+            </button>
+            <button type="button" className="toc-footer-icon-btn" onClick={onClose} aria-label="收起目录">
+              ✕
+            </button>
+          </div>
         </footer>
       </aside>
     </div>
