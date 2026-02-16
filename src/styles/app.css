@@ -688,11 +688,19 @@ textarea {
   border-radius: 6px;
   background: transparent;
   color: #a8b0bc;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 .toc-item__toggle:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.08);
   color: #e7eaf0;
+}
+
+.toc-item__toggle:active:not(:disabled) {
+  transform: scale(0.94);
 }
 
 .toc-item__spacer {
@@ -714,10 +722,27 @@ textarea {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 .toc-item__link:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.08);
+}
+
+.toc-item__link:active:not(:disabled) {
+  transform: translateY(1px);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.toc-item__link:focus-visible,
+.toc-item__toggle:focus-visible,
+.toc-toolbar-btn:focus-visible,
+.toc-footer-icon-btn:focus-visible {
+  outline: 2px solid rgba(200, 225, 255, 0.88);
+  outline-offset: 1px;
 }
 
 .toc-item__meta {
@@ -761,10 +786,49 @@ textarea {
   line-height: 1;
   background: rgba(255, 255, 255, 0.1);
   color: #e8ecf3;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 .toc-footer-icon-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.18);
+}
+
+.toc-footer-icon-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.toc-toolbar-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .toc-item__row {
+    min-height: 2.25rem;
+  }
+
+  .toc-item__link {
+    padding: 0.56rem 0.5rem;
+  }
+
+  .toc-item__link:active:not(:disabled),
+  .toc-item__toggle:active:not(:disabled),
+  .toc-footer-icon-btn:active:not(:disabled),
+  .toc-toolbar-btn:active:not(:disabled) {
+    transform: none;
+    background: rgba(255, 255, 255, 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-item__link,
+  .toc-item__toggle,
+  .toc-footer-icon-btn,
+  .toc-toolbar-btn {
+    transition: none;
+  }
 }
 
 .reader-toast {
