@@ -65,3 +65,34 @@ test("toc jump works when nav href is relative to nav file", async ({ page }) =>
   await expect(page.getByText("无法跳转到该章节")).toHaveCount(0);
   await expect(page.frameLocator("iframe").getByRole("heading", { name: "Chapter B" })).toBeVisible();
 });
+
+test("epub supports page turning by wheel and arrow keys inside iframe", async ({ page }) => {
+  await page.goto("/library");
+  const epub = await createNestedNavEpub();
+
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "nested-nav-page-turn.epub",
+    mimeType: "application/epub+zip",
+    buffer: epub
+  });
+
+  await expect(page).toHaveURL(/\/reader\//);
+  const frame = page.frameLocator("iframe");
+
+  await expect(frame.getByRole("heading", { name: "Chapter A" })).toBeVisible();
+
+  const iframeElement = page.locator(".epub-container iframe").first();
+  await iframeElement.hover();
+  await page.mouse.wheel(0, 1200);
+  await expect(frame.getByRole("heading", { name: "Chapter B" })).toBeVisible();
+
+  await page.waitForTimeout(260);
+  await frame.locator("body").click();
+  await page.keyboard.press("ArrowUp");
+  await expect(frame.getByRole("heading", { name: "Chapter A" })).toBeVisible();
+
+  await page.waitForTimeout(260);
+  await frame.locator("body").click();
+  await page.keyboard.press("ArrowDown");
+  await expect(frame.getByRole("heading", { name: "Chapter B" })).toBeVisible();
+});
