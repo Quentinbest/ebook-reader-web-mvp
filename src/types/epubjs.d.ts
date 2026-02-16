@@ -16,6 +16,7 @@ declare module "epubjs" {
     display(target?: string): Promise<void>;
     prev(): void;
     next(): void;
+    spread(mode: "none" | "auto"): void;
     themes: {
       default(styles: unknown): void;
       select(name: string): void;

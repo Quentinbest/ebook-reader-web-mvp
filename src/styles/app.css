@@ -270,21 +270,27 @@ textarea {
   gap: 0.6rem;
 }
 
-.toc-trigger {
+.toc-side-trigger {
+  position: fixed;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 41;
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
   background: #e8f7f5;
   color: #0d5f5a;
   border: 1px solid rgba(13, 95, 90, 0.2);
+  box-shadow: var(--shadow);
 }
 
-.toc-trigger[aria-pressed="true"] {
+.toc-side-trigger[aria-pressed="true"] {
   background: #0f7f7a;
   color: #fff;
 }
 
 .reader-page {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 420px);
-  gap: 1rem;
+  display: block;
 }
 
 .reader-page.theme-dark {
@@ -302,7 +308,6 @@ textarea {
 }
 
 .reader-main,
-.reader-side .panel,
 .notes-page .note-item {
   background: var(--panel-strong);
   border: 1px solid rgba(16, 42, 70, 0.09);
@@ -315,10 +320,13 @@ textarea {
   padding: 0.6rem;
 }
 
-.reader-side {
-  display: grid;
-  gap: 0.8rem;
-  align-content: start;
+.reader-main--single {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.reader-main--multi {
+  max-width: none;
 }
 
 .panel {
@@ -360,6 +368,22 @@ textarea {
   border: 1px solid rgba(16, 42, 70, 0.14);
   border-radius: var(--radius-sm);
   background: #fff;
+  padding: 0.5rem;
+}
+
+.pdf-canvas-group {
+  display: grid;
+  gap: 0.75rem;
+  align-items: start;
+  justify-content: center;
+}
+
+.pdf-canvas-group.is-single {
+  grid-template-columns: 1fr;
+}
+
+.pdf-canvas-group.is-multi {
+  grid-template-columns: 1fr 1fr;
 }
 
 .search-form {
@@ -507,7 +531,7 @@ textarea {
 .toc-drawer {
   position: absolute;
   top: 84px;
-  right: 16px;
+  left: 16px;
   width: min(420px, calc(100vw - 24px));
   max-height: calc(100vh - 110px);
   background: var(--panel-strong);
@@ -630,11 +654,116 @@ textarea {
   box-shadow: var(--shadow);
 }
 
-@media (max-width: 980px) {
-  .reader-page {
-    grid-template-columns: 1fr;
-  }
+.reader-tool-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
 
+.reader-tool-fab__trigger {
+  border-radius: 999px;
+  padding: 0.65rem 1.05rem;
+  box-shadow: var(--shadow);
+}
+
+.reader-tool-fab__menu {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.45rem;
+  min-width: 170px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(16, 42, 70, 0.14);
+  box-shadow: var(--shadow);
+}
+
+.reader-tool-fab__menu button {
+  border-radius: 10px;
+  text-align: left;
+  background: #eef6ff;
+  color: #19365b;
+}
+
+.reader-tool-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 43;
+  background: rgba(12, 20, 38, 0.32);
+}
+
+.reader-tool-drawer {
+  position: absolute;
+  right: 16px;
+  bottom: 76px;
+  width: min(430px, calc(100vw - 24px));
+  max-height: min(75vh, 740px);
+  overflow: hidden;
+  background: var(--panel-strong);
+  border: 1px solid rgba(16, 42, 70, 0.12);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.reader-tool-drawer__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.78rem 0.85rem;
+  border-bottom: 1px solid rgba(16, 42, 70, 0.12);
+}
+
+.reader-tool-drawer__header h3 {
+  margin: 0;
+  font-family: "Merriweather", serif;
+}
+
+.reader-tool-drawer__header button {
+  border-radius: var(--radius-sm);
+  padding: 0.42rem 0.72rem;
+}
+
+.reader-tool-drawer__content {
+  overflow: auto;
+  padding: 0.75rem;
+}
+
+.layout-panel {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.layout-panel__hint {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+.layout-panel__actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.layout-panel__actions button {
+  border-radius: 10px;
+  text-align: left;
+  background: #eef6ff;
+  color: #19365b;
+}
+
+.layout-panel__actions button.is-active {
+  background: #d8ecff;
+  color: #113f72;
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
   .telemetry-notice {
     flex-direction: column;
     align-items: flex-start;
@@ -648,5 +777,24 @@ textarea {
     bottom: 0.65rem;
     width: auto;
     max-height: min(68vh, 620px);
+  }
+
+  .reader-tool-drawer {
+    left: 0.65rem;
+    right: 0.65rem;
+    width: auto;
+    bottom: 74px;
+    max-height: min(72vh, 680px);
+  }
+
+  .pdf-canvas-group.is-multi {
+    grid-template-columns: 1fr;
+  }
+
+  .toc-side-trigger {
+    left: 10px;
+    top: auto;
+    bottom: 16px;
+    transform: none;
   }
 }

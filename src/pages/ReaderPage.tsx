@@ -35,6 +35,8 @@ import { DEFAULT_READER_PREFERENCES, TOC_CACHE_VERSION } from "../types/contract
 
 const EpubViewport = lazy(() => import("../components/EpubViewport"));
 const PdfViewport = lazy(() => import("../components/PdfViewport"));
+type ReaderTool = "settings" | "search" | "annotation" | "layout";
+type PageLayoutMode = "single" | "multi";
 
 export default function ReaderPage(): JSX.Element {
   const { bookId = "" } = useParams();
@@ -60,6 +62,12 @@ export default function ReaderPage(): JSX.Element {
   const [tocNeedsCache, setTocNeedsCache] = useState(false);
   const [epubReady, setEpubReady] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [toolMenuOpen, setToolMenuOpen] = useState(false);
+  const [activeTool, setActiveTool] = useState<ReaderTool | null>(null);
+  const [pageLayout, setPageLayout] = useState<PageLayoutMode>(() => {
+    const raw = window.localStorage.getItem("reader_page_layout");
+    return raw === "multi" ? "multi" : "single";
+  });
 
   const noticeTimerRef = useRef<number | null>(null);
 
@@ -80,6 +88,10 @@ export default function ReaderPage(): JSX.Element {
   const refreshAnnotations = useCallback(async () => {
     setAnnotations(await getAnnotations(bookId));
   }, [bookId]);
+
+  useEffect(() => {
+    window.localStorage.setItem("reader_page_layout", pageLayout);
+  }, [pageLayout]);
 
   useEffect(() => {
     return () => {
@@ -110,6 +122,8 @@ export default function ReaderPage(): JSX.Element {
 
       if (event.key === "Escape") {
         setTocOpen(false);
+        setToolMenuOpen(false);
+        setActiveTool(null);
       }
     };
 
@@ -126,6 +140,8 @@ export default function ReaderPage(): JSX.Element {
       setLoading(true);
       setError(null);
       setTocOpen(false);
+      setToolMenuOpen(false);
+      setActiveTool(null);
       setTocError(null);
       setCurrentHref(undefined);
 
@@ -159,6 +175,9 @@ export default function ReaderPage(): JSX.Element {
         setCurrentLocator(locator);
         setTargetLocator(locator);
         setCurrentPercent(progress?.percent ?? 0);
+        if (bookMeta.format === "pdf") {
+          setCurrentHref(locator);
+        }
 
         if (bookMeta.format === "epub") {
           const validTocCache = tocCache && tocCache.tocVersion === TOC_CACHE_VERSION;
@@ -168,7 +187,7 @@ export default function ReaderPage(): JSX.Element {
           setEpubReady(false);
         } else {
           setTocEntries([]);
-          setTocLoading(false);
+          setTocLoading(true);
           setTocNeedsCache(false);
           setEpubReady(true);
         }
@@ -292,21 +311,28 @@ export default function ReaderPage(): JSX.Element {
       subtitle={subtitle}
       rightSlot={
         <div className="reader-top-actions">
-          <button type="button" className="toc-trigger" aria-pressed={tocOpen} onClick={() => setTocOpen((prev) => !prev)}>
-            目录
-          </button>
           <OfflineBadge />
           <Link to={`/notes/${book.id}`}>批注页</Link>
         </div>
       }
     >
+      <button
+        type="button"
+        className="toc-side-trigger"
+        aria-pressed={tocOpen}
+        onClick={() => setTocOpen((prev) => !prev)}
+      >
+        目录
+      </button>
+
       <div className={`reader-page theme-${preferences.theme}`}>
-        <section className="reader-main">
+        <section className={`reader-main reader-main--${pageLayout}`}>
           <Suspense fallback={<p className="loading">阅读器加载中...</p>}>
             {book.format === "epub" ? (
               <EpubViewport
                 blob={blob}
                 preferences={preferences}
+                layoutMode={pageLayout}
                 targetLocator={targetLocator}
                 onLocationChange={({ locator, percent, href }) => {
                   setCurrentLocator(locator);
@@ -344,40 +370,157 @@ export default function ReaderPage(): JSX.Element {
               <PdfViewport
                 blob={blob}
                 preferences={preferences}
+                layoutMode={pageLayout}
                 pageCount={pageCount}
                 targetLocator={targetLocator}
                 onLocationChange={({ locator, percent }) => {
                   setCurrentLocator(locator);
                   setCurrentPercent(percent);
+                  setCurrentHref(locator);
                 }}
+                onTocLoaded={(entries) => {
+                  setTocEntries(entries);
+                  setTocLoading(false);
+                  setTocError(null);
+                }}
+                onTocError={(message) => {
+                  setTocLoading(false);
+                  setTocError(message);
+                  showNotice(message);
+                }}
+                onNavigationError={showNotice}
               />
             )}
           </Suspense>
         </section>
-
-        <aside className="reader-side">
-          <ReaderSettingsPanel preferences={preferences} onChange={(next) => void onPreferencesChange(next)} />
-          <SearchPanel
-            onSearch={runSearch}
-            onPick={(locator) => {
-              setTargetLocator(locator);
-              setCurrentLocator(locator);
-            }}
-          />
-          <AnnotationPanel
-            currentLocator={currentLocator}
-            annotations={annotations}
-            onCreate={createAnnotation}
-            onLocate={(locator) => {
-              setTargetLocator(locator);
-            }}
-            onDelete={async (id) => {
-              await deleteAnnotation(id);
-              await refreshAnnotations();
-            }}
-          />
-        </aside>
       </div>
+
+      <div className="reader-tool-fab">
+        {toolMenuOpen ? (
+          <div className="reader-tool-fab__menu" role="menu" aria-label="阅读工具菜单">
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setActiveTool("settings");
+                setToolMenuOpen(false);
+              }}
+            >
+              阅读设置
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setActiveTool("search");
+                setToolMenuOpen(false);
+              }}
+            >
+              书内检索
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setActiveTool("annotation");
+                setToolMenuOpen(false);
+              }}
+            >
+              批注
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setActiveTool("layout");
+                setToolMenuOpen(false);
+              }}
+            >
+              页面布局
+            </button>
+          </div>
+        ) : null}
+        <button
+          type="button"
+          className="reader-tool-fab__trigger"
+          aria-expanded={toolMenuOpen}
+          onClick={() => setToolMenuOpen((prev) => !prev)}
+        >
+          功能
+        </button>
+      </div>
+
+      {activeTool ? (
+        <div className="reader-tool-overlay" onClick={() => setActiveTool(null)}>
+          <aside className="reader-tool-drawer" onClick={(event) => event.stopPropagation()}>
+            <header className="reader-tool-drawer__header">
+              <h3>
+                {activeTool === "settings"
+                  ? "阅读设置"
+                  : activeTool === "search"
+                    ? "书内检索"
+                    : activeTool === "annotation"
+                      ? "批注"
+                      : "页面布局"}
+              </h3>
+              <button type="button" onClick={() => setActiveTool(null)}>
+                关闭
+              </button>
+            </header>
+            <div className="reader-tool-drawer__content">
+              {activeTool === "settings" ? (
+                <ReaderSettingsPanel preferences={preferences} onChange={(next) => void onPreferencesChange(next)} />
+              ) : null}
+              {activeTool === "search" ? (
+                <SearchPanel
+                  onSearch={runSearch}
+                  onPick={(locator) => {
+                    setTargetLocator(locator);
+                    setCurrentLocator(locator);
+                    setActiveTool(null);
+                  }}
+                />
+              ) : null}
+              {activeTool === "annotation" ? (
+                <AnnotationPanel
+                  currentLocator={currentLocator}
+                  annotations={annotations}
+                  onCreate={createAnnotation}
+                  onLocate={(locator) => {
+                    setTargetLocator(locator);
+                    setActiveTool(null);
+                  }}
+                  onDelete={async (id) => {
+                    await deleteAnnotation(id);
+                    await refreshAnnotations();
+                  }}
+                />
+              ) : null}
+              {activeTool === "layout" ? (
+                <section className="layout-panel">
+                  <p className="layout-panel__hint">选择阅读布局模式</p>
+                  <div className="layout-panel__actions">
+                    <button
+                      type="button"
+                      className={pageLayout === "single" ? "is-active" : undefined}
+                      onClick={() => setPageLayout("single")}
+                    >
+                      单页阅读
+                    </button>
+                    <button
+                      type="button"
+                      className={pageLayout === "multi" ? "is-active" : undefined}
+                      onClick={() => setPageLayout("multi")}
+                    >
+                      多页阅读
+                    </button>
+                  </div>
+                </section>
+              ) : null}
+            </div>
+          </aside>
+        </div>
+      ) : null}
 
       <TocPanel
         open={tocOpen}
@@ -386,11 +529,15 @@ export default function ReaderPage(): JSX.Element {
         currentHref={currentHref}
         loading={tocLoading}
         error={tocError}
-        disabled={book.format === "epub" ? !epubReady : false}
+        disabled={book.format === "epub" ? !epubReady : tocLoading}
         onClose={() => setTocOpen(false)}
         onNavigate={(href) => {
           if (book.format === "epub" && !epubReady) {
             showNotice("正在加载…");
+            return;
+          }
+          if (book.format === "pdf" && !/^pdf:page:\d+$/i.test(href)) {
+            showNotice("无法跳转到该章节");
             return;
           }
 

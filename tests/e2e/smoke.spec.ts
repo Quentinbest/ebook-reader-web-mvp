@@ -85,6 +85,8 @@ test.describe("E2E smoke", () => {
     await page.getByRole("button", { name: "Chapter 1" }).click();
     await expect(page.getByRole("heading", { name: "目录" })).toHaveCount(0);
 
+    await page.getByRole("button", { name: "功能" }).click();
+    await page.getByRole("menuitem", { name: "批注" }).click();
     await page.getByLabel("引文").fill("冒烟批注引文");
     await page.getByLabel("备注").first().fill("冒烟备注");
     await page.getByRole("button", { name: "新增批注" }).click();
@@ -92,8 +94,11 @@ test.describe("E2E smoke", () => {
     await expect(page.locator(".annotation-list li p")).toHaveText("冒烟批注引文");
 
     await page.reload();
+    await page.getByRole("button", { name: "功能" }).click();
+    await page.getByRole("menuitem", { name: "批注" }).click();
     await expect(page.locator(".annotation-list li")).toHaveCount(1);
     await expect(page.locator(".annotation-list li p")).toHaveText("冒烟批注引文");
+    await page.getByRole("button", { name: "关闭" }).click();
 
     await page.getByRole("link", { name: "批注页" }).click();
     await expect(page).toHaveURL(/\/notes\//);

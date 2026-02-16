@@ -6,6 +6,7 @@ import type { ReaderPreferences, TocItem } from "../types/contracts";
 type EpubViewportProps = {
   blob: Blob;
   preferences: ReaderPreferences;
+  layoutMode: "single" | "multi";
   targetLocator?: string;
   onLocationChange: (payload: { locator: string; percent: number; href?: string }) => void;
   onTocLoaded: (entries: TocItem[]) => void;
@@ -115,6 +116,7 @@ function getThemeStyles(preferences: ReaderPreferences): Record<string, string> 
 export default function EpubViewport({
   blob,
   preferences,
+  layoutMode,
   targetLocator,
   onLocationChange,
   onTocLoaded,
@@ -162,7 +164,8 @@ export default function EpubViewport({
     const rendition = book.renderTo(container, {
       width: "100%",
       height: "100%",
-      flow: "paginated"
+      flow: "paginated",
+      spread: layoutMode === "single" ? "none" : "auto"
     });
 
     bookRef.current = book;
@@ -287,6 +290,13 @@ export default function EpubViewport({
 
     renditionRef.current.themes.default({ body: themeStyles } as any);
   }, [themeStyles]);
+
+  useEffect(() => {
+    if (!renditionRef.current || typeof renditionRef.current.spread !== "function") {
+      return;
+    }
+    renditionRef.current.spread(layoutMode === "single" ? "none" : "auto");
+  }, [layoutMode]);
 
   return (
     <section className="reader-viewport">
