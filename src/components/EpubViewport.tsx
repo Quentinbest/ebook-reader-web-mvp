@@ -44,6 +44,19 @@ function unique(items: string[]): string[] {
   return Array.from(new Set(items));
 }
 
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  return (
+    target.tagName === "INPUT" ||
+    target.tagName === "TEXTAREA" ||
+    target.tagName === "SELECT" ||
+    target.isContentEditable
+  );
+}
+
 function buildDisplayCandidates(target: string, book: any): string[] {
   const candidates = [target];
   if (target.startsWith("epubcfi(")) {
@@ -124,11 +137,14 @@ export default function EpubViewport({
   onNavigationError,
   onReadyChange
 }: EpubViewportProps): JSX.Element {
+  const PAGE_TURN_COOLDOWN_MS = 220;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const renditionRef = useRef<any>(null);
   const bookRef = useRef<any>(null);
   const locationsReadyRef = useRef(false);
   const locationTaskTimerRef = useRef<number | null>(null);
+  const lastPageTurnAtRef = useRef(0);
+  const busyRef = useRef(true);
   const callbacksRef = useRef({
     onLocationChange,
     onTocLoaded,
@@ -139,6 +155,34 @@ export default function EpubViewport({
   const [busy, setBusy] = useState(true);
 
   const themeStyles = useMemo(() => getThemeStyles(preferences), [preferences]);
+  busyRef.current = busy;
+
+  function turnPage(direction: "next" | "prev"): boolean {
+    if (busyRef.current || !renditionRef.current) {
+      return false;
+    }
+
+    if (direction === "next") {
+      renditionRef.current.next();
+      return true;
+    }
+
+    renditionRef.current.prev();
+    return true;
+  }
+
+  function turnPageWithCooldown(direction: "next" | "prev"): boolean {
+    const now = Date.now();
+    if (now - lastPageTurnAtRef.current < PAGE_TURN_COOLDOWN_MS) {
+      return false;
+    }
+
+    const turned = turnPage(direction);
+    if (turned) {
+      lastPageTurnAtRef.current = now;
+    }
+    return turned;
+  }
 
   useEffect(() => {
     callbacksRef.current = {
@@ -157,6 +201,7 @@ export default function EpubViewport({
     }
 
     let active = true;
+    const boundDocs = new Set<Document>();
     setBusy(true);
     callbacksRef.current.onReadyChange(false);
 
@@ -193,6 +238,54 @@ export default function EpubViewport({
       callbacksRef.current.onLocationChange({ locator, percent, href });
     };
 
+    const onWheel = (event: WheelEvent): void => {
+      if (Math.abs(event.deltaY) < 6) {
+        return;
+      }
+
+      const direction = event.deltaY > 0 ? "next" : "prev";
+      if (turnPageWithCooldown(direction)) {
+        event.preventDefault();
+      }
+    };
+
+    const onDocKeyDown = (event: KeyboardEvent): void => {
+      if (isEditableTarget(event.target)) {
+        return;
+      }
+
+      if (event.key === "ArrowDown") {
+        if (turnPageWithCooldown("next")) {
+          event.preventDefault();
+        }
+      } else if (event.key === "ArrowUp") {
+        if (turnPageWithCooldown("prev")) {
+          event.preventDefault();
+        }
+      }
+    };
+
+    const bindInputEvents = (doc: Document | null | undefined): void => {
+      if (!doc || boundDocs.has(doc)) {
+        return;
+      }
+      doc.addEventListener("wheel", onWheel, { passive: false });
+      doc.addEventListener("keydown", onDocKeyDown);
+      boundDocs.add(doc);
+    };
+
+    const unbindInputEvents = (): void => {
+      for (const doc of boundDocs) {
+        doc.removeEventListener("wheel", onWheel);
+        doc.removeEventListener("keydown", onDocKeyDown);
+      }
+      boundDocs.clear();
+    };
+
+    const onRendered = (_section: any, view: any): void => {
+      bindInputEvents(view?.document);
+    };
+
     const initialize = async (): Promise<void> => {
       await book.ready;
 
@@ -206,6 +299,16 @@ export default function EpubViewport({
       rendition.themes.default({ body: themeStyles } as any);
       await rendition.display();
       rendition.on("relocated", onRelocated);
+      rendition.on("rendered", onRendered);
+      const runtimeRendition = rendition as any;
+      if (typeof runtimeRendition.getContents === "function") {
+        const contents = runtimeRendition.getContents();
+        if (Array.isArray(contents)) {
+          for (const content of contents) {
+            bindInputEvents(content?.document);
+          }
+        }
+      }
 
       if (active) {
         setBusy(false);
@@ -238,6 +341,8 @@ export default function EpubViewport({
         window.clearTimeout(locationTaskTimerRef.current);
       }
       rendition.off("relocated", onRelocated);
+      rendition.off("rendered", onRendered);
+      unbindInputEvents();
       book.destroy();
       bookRef.current = null;
       renditionRef.current = null;
@@ -298,18 +403,54 @@ export default function EpubViewport({
     renditionRef.current.spread(layoutMode === "single" ? "none" : "auto");
   }, [layoutMode]);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (isEditableTarget(event.target)) {
+        return;
+      }
+
+      if (event.key === "ArrowDown") {
+        if (turnPageWithCooldown("next")) {
+          event.preventDefault();
+        }
+      } else if (event.key === "ArrowUp") {
+        if (turnPageWithCooldown("prev")) {
+          event.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [busy]);
+
   return (
     <section className="reader-viewport">
       <div className="reader-controls-inline">
-        <button type="button" onClick={() => renditionRef.current?.prev()}>
+        <button type="button" onClick={() => turnPage("prev")}>
           上一页
         </button>
-        <button type="button" onClick={() => renditionRef.current?.next()}>
+        <button type="button" onClick={() => turnPage("next")}>
           下一页
         </button>
         {busy ? <span>正在渲染 EPUB...</span> : null}
       </div>
-      <div className="epub-container" ref={containerRef} />
+      <div
+        className="epub-container"
+        ref={containerRef}
+        onWheel={(event) => {
+          if (Math.abs(event.deltaY) < 6) {
+            return;
+          }
+
+          const direction = event.deltaY > 0 ? "next" : "prev";
+          if (turnPageWithCooldown(direction)) {
+            event.preventDefault();
+          }
+        }}
+      />
     </section>
   );
 }

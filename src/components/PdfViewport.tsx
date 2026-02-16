@@ -31,6 +31,19 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  return (
+    target.tagName === "INPUT" ||
+    target.tagName === "TEXTAREA" ||
+    target.tagName === "SELECT" ||
+    target.isContentEditable
+  );
+}
+
 export default function PdfViewport({
   blob,
   preferences,
@@ -42,6 +55,7 @@ export default function PdfViewport({
   onTocError,
   onNavigationError
 }: PdfViewportProps): JSX.Element {
+  const PAGE_TURN_COOLDOWN_MS = 220;
   const [page, setPage] = useState(1);
   const [zoom, setZoom] = useState(100);
   const [doc, setDoc] = useState<any | null>(null);
@@ -54,6 +68,7 @@ export default function PdfViewport({
   const canvasSecondaryRef = useRef<HTMLCanvasElement | null>(null);
   const frameRef = useRef<HTMLDivElement | null>(null);
   const renderTaskRefs = useRef<any[]>([]);
+  const lastPageTurnAtRef = useRef(0);
   const callbacksRef = useRef({
     onLocationChange,
     onTocLoaded,
@@ -62,6 +77,33 @@ export default function PdfViewport({
   });
 
   const effectivePageCount = docPageCount || pageCount || 1;
+
+  function turnPage(direction: "next" | "prev"): boolean {
+    if (!doc || docLoading || rendering) {
+      return false;
+    }
+
+    setPage((prev) => {
+      if (direction === "next") {
+        return clamp(prev + 1, 1, effectivePageCount);
+      }
+      return clamp(prev - 1, 1, effectivePageCount);
+    });
+    return true;
+  }
+
+  function turnPageWithCooldown(direction: "next" | "prev"): boolean {
+    const now = Date.now();
+    if (now - lastPageTurnAtRef.current < PAGE_TURN_COOLDOWN_MS) {
+      return false;
+    }
+
+    const turned = turnPage(direction);
+    if (turned) {
+      lastPageTurnAtRef.current = now;
+    }
+    return turned;
+  }
 
   useEffect(() => {
     callbacksRef.current = {
@@ -246,6 +288,29 @@ export default function PdfViewport({
     };
   }, [doc]);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (isEditableTarget(event.target)) {
+        return;
+      }
+
+      if (event.key === "ArrowDown") {
+        if (turnPageWithCooldown("next")) {
+          event.preventDefault();
+        }
+      } else if (event.key === "ArrowUp") {
+        if (turnPageWithCooldown("prev")) {
+          event.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [doc, docLoading, rendering, effectivePageCount]);
+
   const pageStyle = useMemo(
     () => ({
       fontFamily: preferences.fontFamily === "serif" ? "Merriweather, serif" : "IBM Plex Sans, sans-serif"
@@ -256,10 +321,10 @@ export default function PdfViewport({
   return (
     <section className="reader-viewport" style={pageStyle}>
       <div className="reader-controls-inline">
-        <button type="button" onClick={() => setPage((prev) => clamp(prev - 1, 1, effectivePageCount))}>
+        <button type="button" onClick={() => turnPage("prev")}>
           上一页
         </button>
-        <button type="button" onClick={() => setPage((prev) => clamp(prev + 1, 1, effectivePageCount))}>
+        <button type="button" onClick={() => turnPage("next")}>
           下一页
         </button>
         <label>
@@ -292,7 +357,20 @@ export default function PdfViewport({
         </label>
       </div>
 
-      <div className="pdf-frame" ref={frameRef}>
+      <div
+        className="pdf-frame"
+        ref={frameRef}
+        onWheel={(event) => {
+          if (Math.abs(event.deltaY) < 6) {
+            return;
+          }
+
+          const direction = event.deltaY > 0 ? "next" : "prev";
+          if (turnPageWithCooldown(direction)) {
+            event.preventDefault();
+          }
+        }}
+      >
         {docLoading || rendering ? <p className="loading">正在渲染 PDF...</p> : null}
         {error ? <p className="error-banner">{error}</p> : null}
         <div className={`pdf-canvas-group ${layoutMode === "multi" ? "is-multi" : "is-single"}`}>
