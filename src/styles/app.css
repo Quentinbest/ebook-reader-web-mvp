@@ -767,6 +767,15 @@ textarea {
   color: #d8e0ec;
 }
 
+.toc-item.is-near-active > .toc-item__row .toc-item__link {
+  color: #eef1f6;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.toc-item.is-near-active > .toc-item__row .toc-item__meta {
+  color: #a9b3c3;
+}
+
 .toc-drawer__footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0.44rem 0.56rem 0.52rem;

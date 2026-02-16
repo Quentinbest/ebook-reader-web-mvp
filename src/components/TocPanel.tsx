@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { findActiveTocId, findTocPathIds, isTocMatch } from "../lib/toc";
 import type { TocItem } from "../types/contracts";
 
@@ -20,6 +20,7 @@ function TocTreeItem({
   item,
   depth,
   orderMap,
+  activeOrder,
   expanded,
   disabled,
   currentHref,
@@ -29,6 +30,7 @@ function TocTreeItem({
   item: TocItem;
   depth: number;
   orderMap: Map<string, number>;
+  activeOrder?: number;
   expanded: Set<string>;
   disabled: boolean;
   currentHref?: string;
@@ -40,9 +42,10 @@ function TocTreeItem({
   const active = isTocMatch(item.href, currentHref);
   const canNavigate = Boolean(item.href) && !disabled;
   const order = orderMap.get(item.id);
+  const nearActive = !active && order && activeOrder ? Math.abs(order - activeOrder) <= 2 : false;
 
   return (
-    <li className={`toc-item ${active ? "is-active" : ""}`} data-toc-id={item.id}>
+    <li className={`toc-item ${active ? "is-active" : ""} ${nearActive ? "is-near-active" : ""}`} data-toc-id={item.id}>
       <div className="toc-item__row" style={{ paddingLeft: `${(depth - 1) * 12}px` }}>
         {hasChildren ? (
           <button
@@ -89,6 +92,7 @@ function TocTreeItem({
               item={child}
               depth={depth + 1}
               orderMap={orderMap}
+              activeOrder={activeOrder}
               expanded={expanded}
               disabled={disabled}
               currentHref={currentHref}
@@ -146,7 +150,9 @@ export default function TocPanel({
   }, [items]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [compact, setCompact] = useState(() => window.matchMedia("(max-width: 980px)").matches);
+  const bodyRef = useRef<HTMLElement | null>(null);
   const allExpanded = expandableIds.length > 0 && expandableIds.every((id) => expanded.has(id));
+  const activeOrder = activeId ? orderMap.get(activeId) : undefined;
 
   useEffect(() => {
     if (!open) {
@@ -187,8 +193,16 @@ export default function TocPanel({
     }
 
     const raf = window.requestAnimationFrame(() => {
-      const target = document.querySelector(`[data-toc-id="${activeId}"]`);
-      target?.scrollIntoView({ block: "center", behavior: "smooth" });
+      const container = bodyRef.current;
+      const target = container?.querySelector(`[data-toc-id="${activeId}"]`) as HTMLElement | null;
+      if (!container || !target) {
+        return;
+      }
+      const targetTop = target.offsetTop - 8;
+      container.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: "smooth"
+      });
     });
 
     return () => window.cancelAnimationFrame(raf);
@@ -213,16 +227,22 @@ export default function TocPanel({
   };
 
   const scrollToTop = (): void => {
-    const container = document.querySelector(".toc-drawer__body");
-    container?.scrollTo({ top: 0, behavior: "smooth" });
+    bodyRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const scrollToActive = (): void => {
     if (!activeId) {
       return;
     }
-    const target = document.querySelector(`[data-toc-id="${activeId}"]`);
-    target?.scrollIntoView({ block: "center", behavior: "smooth" });
+    const container = bodyRef.current;
+    const target = container?.querySelector(`[data-toc-id="${activeId}"]`) as HTMLElement | null;
+    if (!container || !target) {
+      return;
+    }
+    container.scrollTo({
+      top: Math.max(0, target.offsetTop - 8),
+      behavior: "smooth"
+    });
   };
 
   return (
@@ -259,7 +279,7 @@ export default function TocPanel({
           </div>
         </section>
 
-        <section className="toc-drawer__body">
+        <section className="toc-drawer__body" ref={bodyRef}>
           {disabled ? <p className="toc-hint">正在加载…</p> : null}
           {loading ? <p className="toc-hint">目录加载中...</p> : null}
           {!loading && error ? <p className="toc-error">{error}</p> : null}
@@ -273,6 +293,7 @@ export default function TocPanel({
                   item={item}
                   depth={1}
                   orderMap={orderMap}
+                  activeOrder={activeOrder}
                   expanded={expanded}
                   disabled={disabled}
                   currentHref={currentHref}
