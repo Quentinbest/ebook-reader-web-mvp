@@ -751,6 +751,8 @@ textarea {
   color: #8f98a8;
   font-size: 0.82rem;
   padding-right: 0.24rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
 
 .toc-item.is-active > .toc-item__row {

@@ -16,9 +16,29 @@ type TocPanelProps = {
   onClose: () => void;
 };
 
+function resolveTocMetaLabel(href: string | undefined, fallbackOrder: number | undefined): string {
+  if (!href) {
+    return fallbackOrder ? String(fallbackOrder) : "";
+  }
+
+  const pdfPage = href.match(/^pdf:page:(\d+)$/i);
+  if (pdfPage) {
+    return pdfPage[1];
+  }
+
+  const normalized = href.replace(/[#?].*$/, "");
+  const chapterLike = normalized.match(/(?:chapter|ch|part|sec|section|book|vol|volume)[^\d]{0,3}(\d{1,4})/i);
+  if (chapterLike) {
+    return chapterLike[1];
+  }
+
+  return fallbackOrder ? String(fallbackOrder) : "";
+}
+
 function TocTreeItem({
   item,
   depth,
+  metaLabelMap,
   orderMap,
   activeOrder,
   expanded,
@@ -29,6 +49,7 @@ function TocTreeItem({
 }: {
   item: TocItem;
   depth: number;
+  metaLabelMap: Map<string, string>;
   orderMap: Map<string, number>;
   activeOrder?: number;
   expanded: Set<string>;
@@ -42,6 +63,7 @@ function TocTreeItem({
   const active = isTocMatch(item.href, currentHref);
   const canNavigate = Boolean(item.href) && !disabled;
   const order = orderMap.get(item.id);
+  const metaLabel = metaLabelMap.get(item.id) ?? "";
   const nearActive = !active && order && activeOrder ? Math.abs(order - activeOrder) <= 2 : false;
 
   return (
@@ -80,7 +102,7 @@ function TocTreeItem({
           {item.title}
         </button>
         <span className="toc-item__meta" aria-hidden>
-          {order ?? ""}
+          {metaLabel}
         </span>
       </div>
 
@@ -91,6 +113,7 @@ function TocTreeItem({
               key={child.id}
               item={child}
               depth={depth + 1}
+              metaLabelMap={metaLabelMap}
               orderMap={orderMap}
               activeOrder={activeOrder}
               expanded={expanded}
@@ -135,6 +158,20 @@ export default function TocPanel({
     walk(items);
     return map;
   }, [items]);
+  const metaLabelMap = useMemo(() => {
+    const map = new Map<string, string>();
+    const walk = (nodes: TocItem[]): void => {
+      for (const node of nodes) {
+        const order = orderMap.get(node.id);
+        map.set(node.id, resolveTocMetaLabel(node.href, order));
+        if (node.children?.length) {
+          walk(node.children);
+        }
+      }
+    };
+    walk(items);
+    return map;
+  }, [items, orderMap]);
   const expandableIds = useMemo(() => {
     const ids: string[] = [];
     const walk = (nodes: TocItem[]): void => {
@@ -292,6 +329,7 @@ export default function TocPanel({
                   key={item.id}
                   item={item}
                   depth={1}
+                  metaLabelMap={metaLabelMap}
                   orderMap={orderMap}
                   activeOrder={activeOrder}
                   expanded={expanded}
