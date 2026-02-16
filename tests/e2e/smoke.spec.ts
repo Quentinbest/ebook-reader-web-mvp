@@ -83,7 +83,7 @@ test.describe("E2E smoke", () => {
     await expect(page.getByRole("heading", { name: "目录" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Chapter 1" })).toBeVisible();
     await page.getByRole("button", { name: "Chapter 1" }).click();
-    await expect(page.getByRole("heading", { name: "目录" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "目录" })).toBeVisible();
 
     await page.getByRole("button", { name: "功能" }).click();
     await page.getByRole("menuitem", { name: "批注" }).click();

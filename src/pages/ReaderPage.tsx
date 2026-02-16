@@ -525,6 +525,7 @@ export default function ReaderPage(): JSX.Element {
       <TocPanel
         open={tocOpen}
         bookTitle={book.title}
+        bookAuthor={book.author}
         items={tocEntries}
         currentHref={currentHref}
         loading={tocLoading}
@@ -543,7 +544,9 @@ export default function ReaderPage(): JSX.Element {
 
           setTargetLocator(href);
           setCurrentHref(href);
-          setTocOpen(false);
+          if (window.matchMedia("(max-width: 980px)").matches) {
+            setTocOpen(false);
+          }
         }}
       />
 

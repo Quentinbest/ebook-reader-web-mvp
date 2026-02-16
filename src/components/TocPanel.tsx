@@ -5,6 +5,7 @@ import type { TocItem } from "../types/contracts";
 type TocPanelProps = {
   open: boolean;
   bookTitle?: string;
+  bookAuthor?: string;
   items: TocItem[];
   currentHref?: string;
   loading: boolean;
@@ -17,6 +18,7 @@ type TocPanelProps = {
 function TocTreeItem({
   item,
   depth,
+  orderMap,
   expanded,
   disabled,
   currentHref,
@@ -25,6 +27,7 @@ function TocTreeItem({
 }: {
   item: TocItem;
   depth: number;
+  orderMap: Map<string, number>;
   expanded: Set<string>;
   disabled: boolean;
   currentHref?: string;
@@ -35,6 +38,7 @@ function TocTreeItem({
   const isExpanded = expanded.has(item.id);
   const active = isTocMatch(item.href, currentHref);
   const canNavigate = Boolean(item.href) && !disabled;
+  const order = orderMap.get(item.id);
 
   return (
     <li className={`toc-item ${active ? "is-active" : ""}`} data-toc-id={item.id}>
@@ -58,14 +62,22 @@ function TocTreeItem({
           className="toc-item__link"
           disabled={!canNavigate}
           onClick={() => {
-            if (!item.href) {
+            if (!item.href && hasChildren) {
+              onToggle(item.id);
+              return;
+            }
+            if (!item.href || disabled) {
               return;
             }
             onNavigate(item.href);
           }}
+          title={item.title}
         >
           {item.title}
         </button>
+        <span className="toc-item__meta" aria-hidden>
+          {order ?? ""}
+        </span>
       </div>
 
       {hasChildren && isExpanded ? (
@@ -75,6 +87,7 @@ function TocTreeItem({
               key={child.id}
               item={child}
               depth={depth + 1}
+              orderMap={orderMap}
               expanded={expanded}
               disabled={disabled}
               currentHref={currentHref}
@@ -91,6 +104,7 @@ function TocTreeItem({
 export default function TocPanel({
   open,
   bookTitle,
+  bookAuthor,
   items,
   currentHref,
   loading,
@@ -100,7 +114,37 @@ export default function TocPanel({
   onClose
 }: TocPanelProps): JSX.Element | null {
   const activeId = useMemo(() => findActiveTocId(items, currentHref), [items, currentHref]);
+  const orderMap = useMemo(() => {
+    const map = new Map<string, number>();
+    let index = 1;
+    const walk = (nodes: TocItem[]): void => {
+      for (const node of nodes) {
+        map.set(node.id, index);
+        index += 1;
+        if (node.children?.length) {
+          walk(node.children);
+        }
+      }
+    };
+    walk(items);
+    return map;
+  }, [items]);
+  const expandableIds = useMemo(() => {
+    const ids: string[] = [];
+    const walk = (nodes: TocItem[]): void => {
+      for (const node of nodes) {
+        if (node.children?.length) {
+          ids.push(node.id);
+          walk(node.children);
+        }
+      }
+    };
+    walk(items);
+    return ids;
+  }, [items]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [compact, setCompact] = useState(() => window.matchMedia("(max-width: 980px)").matches);
+  const allExpanded = expandableIds.length > 0 && expandableIds.every((id) => expanded.has(id));
 
   useEffect(() => {
     if (!open) {
@@ -122,6 +166,20 @@ export default function TocPanel({
   }, [activeId, items, open]);
 
   useEffect(() => {
+    const media = window.matchMedia("(max-width: 980px)");
+    const apply = (): void => setCompact(media.matches);
+    apply();
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", apply);
+      return () => media.removeEventListener("change", apply);
+    }
+
+    media.addListener(apply);
+    return () => media.removeListener(apply);
+  }, []);
+
+  useEffect(() => {
     if (!open || !activeId) {
       return;
     }
@@ -138,18 +196,46 @@ export default function TocPanel({
     return null;
   }
 
+  const coverLabel = (bookTitle || "目录").trim().charAt(0) || "目";
+
   return (
-    <div className="toc-overlay" onClick={onClose}>
+    <div className={`toc-layer ${compact ? "is-compact" : "is-docked"}`} onClick={compact ? onClose : undefined}>
       <aside className="toc-drawer" aria-label="目录面板" onClick={(event) => event.stopPropagation()}>
-        <header className="toc-drawer__header">
-          <div>
-            <h3>目录</h3>
-            {bookTitle ? <p>{bookTitle}</p> : null}
-          </div>
-          <button type="button" onClick={onClose} aria-label="关闭目录">
-            关闭
+        <header className="toc-drawer__toolbar">
+          <button type="button" className="toc-toolbar-btn" onClick={onClose} aria-label="收起目录">
+            ×
+          </button>
+          <h3>目录</h3>
+          <button
+            type="button"
+            className="toc-toolbar-btn"
+            onClick={() => {
+              setExpanded((prev) => {
+                if (allExpanded) {
+                  return new Set();
+                }
+                const next = new Set(prev);
+                for (const id of expandableIds) {
+                  next.add(id);
+                }
+                return next;
+              });
+            }}
+            aria-label={allExpanded ? "折叠全部章节" : "展开全部章节"}
+          >
+            {allExpanded ? "−" : "+"}
           </button>
         </header>
+
+        <section className="toc-drawer__book">
+          <div className="toc-book__cover" aria-hidden>
+            {coverLabel}
+          </div>
+          <div className="toc-book__meta">
+            <p className="toc-book__title">{bookTitle || "未命名书籍"}</p>
+            <p className="toc-book__author">{bookAuthor || "未知作者"}</p>
+          </div>
+        </section>
 
         <section className="toc-drawer__body">
           {disabled ? <p className="toc-hint">正在加载…</p> : null}
@@ -164,6 +250,7 @@ export default function TocPanel({
                   key={item.id}
                   item={item}
                   depth={1}
+                  orderMap={orderMap}
                   expanded={expanded}
                   disabled={disabled}
                   currentHref={currentHref}
@@ -184,6 +271,23 @@ export default function TocPanel({
             </ul>
           ) : null}
         </section>
+
+        <footer className="toc-drawer__footer">
+          <button
+            type="button"
+            className="toc-footer-btn"
+            onClick={() => {
+              if (!activeId) {
+                return;
+              }
+              const target = document.querySelector(`[data-toc-id="${activeId}"]`);
+              target?.scrollIntoView({ block: "center", behavior: "smooth" });
+            }}
+            disabled={!activeId}
+          >
+            定位当前章节
+          </button>
+        </footer>
       </aside>
     </div>
   );
