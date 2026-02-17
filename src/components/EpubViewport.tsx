@@ -44,6 +44,39 @@ function unique(items: string[]): string[] {
   return Array.from(new Set(items));
 }
 
+function normalizeSingleImagePage(doc: Document): void {
+  const body = doc.body;
+  if (!body) {
+    return;
+  }
+
+  const images = Array.from(body.querySelectorAll("img")) as HTMLImageElement[];
+  if (images.length !== 1) {
+    return;
+  }
+
+  const textLength = (body.textContent ?? "").replace(/\s+/g, "").length;
+  if (textLength > 30) {
+    return;
+  }
+
+  const image = images[0];
+  image.style.width = "auto";
+  image.style.height = "auto";
+  image.style.maxWidth = "100%";
+  image.style.maxHeight = "100%";
+  image.style.objectFit = "contain";
+  image.style.display = "block";
+  image.style.margin = "0 auto";
+
+  body.style.padding = "0";
+  body.style.margin = "0";
+  body.style.height = "100%";
+  body.style.display = "flex";
+  body.style.alignItems = "center";
+  body.style.justifyContent = "center";
+}
+
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
     return false;
@@ -283,6 +316,10 @@ export default function EpubViewport({
     };
 
     const onRendered = (_section: any, view: any): void => {
+      const renderedDoc = view?.document as Document | undefined;
+      if (renderedDoc) {
+        normalizeSingleImagePage(renderedDoc);
+      }
       bindInputEvents(view?.document);
     };
 
@@ -305,6 +342,10 @@ export default function EpubViewport({
         const contents = runtimeRendition.getContents();
         if (Array.isArray(contents)) {
           for (const content of contents) {
+            const contentDoc = content?.document as Document | undefined;
+            if (contentDoc) {
+              normalizeSingleImagePage(contentDoc);
+            }
             bindInputEvents(content?.document);
           }
         }
