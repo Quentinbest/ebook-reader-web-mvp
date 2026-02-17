@@ -329,15 +329,6 @@ export default function PdfViewport({
   return (
     <section className="reader-viewport" style={pageStyle}>
       <div className="reader-content-stage">
-        <button
-          type="button"
-          className="reader-page-turn reader-page-turn--left"
-          aria-label="上一页"
-          disabled={!canPrev}
-          onClick={() => turnPage("prev")}
-        >
-          <span className="reader-page-turn__icon">{"<"}</span>
-        </button>
         <div
           className="pdf-frame"
           ref={frameRef}
@@ -371,15 +362,6 @@ export default function PdfViewport({
             />
           </div>
         </div>
-        <button
-          type="button"
-          className="reader-page-turn reader-page-turn--right"
-          aria-label="下一页"
-          disabled={!canNext}
-          onClick={() => turnPage("next")}
-        >
-          <span className="reader-page-turn__icon">{">"}</span>
-        </button>
       </div>
 
       <div className="pdf-bottom-bar" role="group" aria-label="翻页及页码">

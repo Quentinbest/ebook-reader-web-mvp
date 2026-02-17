@@ -415,54 +415,6 @@ textarea {
   overflow-x: hidden;
 }
 
-.reader-page-turn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;
-  width: 2.2rem;
-  height: 3.95rem;
-  padding: 0;
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid rgba(111, 103, 91, 0.26);
-  color: #6f675b;
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1;
-  display: grid;
-  place-items: center;
-  box-shadow: none;
-}
-
-.reader-page-turn__icon {
-  display: inline-block;
-  transform: scaleX(1.42);
-}
-
-.reader-page-turn--left {
-  left: -0.62rem;
-}
-
-.reader-page-turn--right {
-  right: -0.62rem;
-}
-
-.reader-page-turn:hover:not(:disabled) {
-  background: rgba(111, 103, 91, 0.1);
-  border-color: rgba(111, 103, 91, 0.42);
-}
-
-.reader-page-turn:active:not(:disabled) {
-  transform: translateY(-50%) scale(0.97);
-  background: rgba(111, 103, 91, 0.18);
-}
-
-.reader-page-turn:disabled {
-  opacity: 0.52;
-  color: #998f82;
-}
-
 .epub-container {
   width: 100%;
   min-height: 68vh;
@@ -1115,20 +1067,6 @@ textarea {
   .pdf-page-indicator {
     min-width: auto;
     font-size: 0.9rem;
-  }
-
-  .reader-page-turn {
-    width: 2.02rem;
-    height: 3.5rem;
-    font-size: 1.7rem;
-  }
-
-  .reader-page-turn--left {
-    left: -0.24rem;
-  }
-
-  .reader-page-turn--right {
-    right: -0.24rem;
   }
 
   .toc-side-trigger {

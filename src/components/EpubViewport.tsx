@@ -431,40 +431,20 @@ export default function EpubViewport({
       <div className="reader-controls-inline">
         {busy ? <span>正在渲染 EPUB...</span> : null}
       </div>
-      <div className="reader-content-stage">
-        <button
-          type="button"
-          className="reader-page-turn reader-page-turn--left"
-          aria-label="上一页"
-          disabled={busy}
-          onClick={() => turnPage("prev")}
-        >
-          <span className="reader-page-turn__icon">{"<"}</span>
-        </button>
-        <div
-          className="epub-container"
-          ref={containerRef}
-          onWheel={(event) => {
-            if (Math.abs(event.deltaY) < 6) {
-              return;
-            }
+      <div
+        className="epub-container"
+        ref={containerRef}
+        onWheel={(event) => {
+          if (Math.abs(event.deltaY) < 6) {
+            return;
+          }
 
-            const direction = event.deltaY > 0 ? "next" : "prev";
-            if (turnPageWithCooldown(direction)) {
-              event.preventDefault();
-            }
-          }}
-        />
-        <button
-          type="button"
-          className="reader-page-turn reader-page-turn--right"
-          aria-label="下一页"
-          disabled={busy}
-          onClick={() => turnPage("next")}
-        >
-          <span className="reader-page-turn__icon">{">"}</span>
-        </button>
-      </div>
+          const direction = event.deltaY > 0 ? "next" : "prev";
+          if (turnPageWithCooldown(direction)) {
+            event.preventDefault();
+          }
+        }}
+      />
     </section>
   );
 }
