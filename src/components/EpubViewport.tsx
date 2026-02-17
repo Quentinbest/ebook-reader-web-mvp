@@ -186,6 +186,7 @@ export default function EpubViewport({
     onReadyChange
   });
   const [busy, setBusy] = useState(true);
+  const [progressPercent, setProgressPercent] = useState(0);
 
   const themeStyles = useMemo(() => getThemeStyles(preferences), [preferences]);
   busyRef.current = busy;
@@ -202,6 +203,60 @@ export default function EpubViewport({
 
     renditionRef.current.prev();
     return true;
+  }
+
+  function jumpToStart(): void {
+    if (!renditionRef.current || busyRef.current) {
+      return;
+    }
+    void renditionRef.current.display();
+  }
+
+  function jumpToEnd(): void {
+    if (!renditionRef.current || !bookRef.current || busyRef.current) {
+      return;
+    }
+
+    const book = bookRef.current as any;
+    if (locationsReadyRef.current && typeof book?.locations?.cfiFromPercentage === "function") {
+      try {
+        const cfi = book.locations.cfiFromPercentage(0.999);
+        if (typeof cfi === "string" && cfi) {
+          void renditionRef.current.display(cfi);
+          return;
+        }
+      } catch {
+        // Fall back to last spine item.
+      }
+    }
+
+    const spineItems = Array.isArray(book?.spine?.spineItems) ? book.spine.spineItems : [];
+    const lastItem = spineItems[spineItems.length - 1];
+    if (lastItem?.href) {
+      void renditionRef.current.display(lastItem.href);
+    }
+  }
+
+  async function jumpToPercent(nextPercent: number): Promise<void> {
+    const clamped = Math.max(0, Math.min(100, Math.round(nextPercent)));
+    if (!renditionRef.current || !bookRef.current || busyRef.current) {
+      return;
+    }
+
+    const book = bookRef.current as any;
+    if (!locationsReadyRef.current || typeof book?.locations?.cfiFromPercentage !== "function") {
+      callbacksRef.current.onNavigationError("正在加载…");
+      return;
+    }
+
+    try {
+      const cfi = book.locations.cfiFromPercentage(clamped / 100);
+      if (typeof cfi === "string" && cfi) {
+        await renditionRef.current.display(cfi);
+      }
+    } catch {
+      callbacksRef.current.onNavigationError("无法跳转到该位置");
+    }
   }
 
   function turnPageWithCooldown(direction: "next" | "prev"): boolean {
@@ -267,6 +322,7 @@ export default function EpubViewport({
         }
       }
       percent = Math.max(0, Math.min(100, percent));
+      setProgressPercent(percent);
       const href = location?.start?.href;
       callbacksRef.current.onLocationChange({ locator, percent, href });
     };
@@ -467,25 +523,80 @@ export default function EpubViewport({
     };
   }, [busy]);
 
-  return (
-    <section className="reader-viewport">
-      <div className="reader-controls-inline">
-        {busy ? <span>正在渲染 EPUB...</span> : null}
-      </div>
-      <div
-        className="epub-container"
-        ref={containerRef}
-        onWheel={(event) => {
-          if (Math.abs(event.deltaY) < 6) {
-            return;
-          }
+  const canPrev = progressPercent > 1 && !busy;
+  const canNext = progressPercent < 99 && !busy;
 
-          const direction = event.deltaY > 0 ? "next" : "prev";
-          if (turnPageWithCooldown(direction)) {
-            event.preventDefault();
-          }
-        }}
-      />
+  return (
+    <section className="reader-viewport reader-viewport--with-bottom-bar">
+      <div className="reader-content-stage">
+        {busy ? <p className="loading reader-stage-loading">正在渲染 EPUB...</p> : null}
+        <div
+          className="epub-container"
+          ref={containerRef}
+          onWheel={(event) => {
+            if (Math.abs(event.deltaY) < 6) {
+              return;
+            }
+
+            const direction = event.deltaY > 0 ? "next" : "prev";
+            if (turnPageWithCooldown(direction)) {
+              event.preventDefault();
+            }
+          }}
+        />
+      </div>
+
+      <div className="pdf-bottom-bar" role="group" aria-label="翻页及页码">
+        <div className="pdf-bottom-bar__cluster">
+          <button type="button" className="pdf-icon-btn" aria-label="第一页" disabled={!canPrev} onClick={jumpToStart}>
+            «
+          </button>
+          <button type="button" className="pdf-icon-btn" aria-label="上一页" disabled={!canPrev} onClick={() => turnPage("prev")}>
+            ‹
+          </button>
+          <button type="button" className="pdf-icon-btn is-muted" aria-label="占位按钮" disabled>
+            ↶
+          </button>
+          <button type="button" className="pdf-icon-btn is-muted" aria-label="占位按钮" disabled>
+            ↷
+          </button>
+        </div>
+
+        <span className="pdf-page-indicator" aria-live="polite">
+          {Math.round(progressPercent)} / 100
+        </span>
+
+        <input
+          type="range"
+          className="pdf-progress-slider"
+          aria-label="阅读进度"
+          min={0}
+          max={100}
+          value={Math.round(progressPercent)}
+          disabled={busy || !locationsReadyRef.current}
+          onChange={(event) => {
+            const next = Number(event.target.value);
+            if (!Number.isNaN(next)) {
+              void jumpToPercent(next);
+            }
+          }}
+        />
+
+        <div className="pdf-bottom-bar__cluster pdf-bottom-bar__cluster--right">
+          <button type="button" className="pdf-icon-btn pdf-icon-btn--headset" aria-label="听书（即将上线）" disabled>
+            🎧
+          </button>
+          <button type="button" className="pdf-icon-btn" aria-label="下一页" disabled={!canNext} onClick={() => turnPage("next")}>
+            ›
+          </button>
+          <button type="button" className="pdf-icon-btn" aria-label="最后一页" disabled={!canNext} onClick={jumpToEnd}>
+            »
+          </button>
+          <span className="pdf-page-indicator-secondary" aria-hidden>
+            {Math.round(progressPercent)} / 100
+          </span>
+        </div>
+      </div>
     </section>
   );
 }

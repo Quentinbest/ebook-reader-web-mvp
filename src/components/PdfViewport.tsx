@@ -412,7 +412,7 @@ export default function PdfViewport({
         />
 
         <div className="pdf-bottom-bar__cluster pdf-bottom-bar__cluster--right">
-          <button type="button" className="pdf-icon-btn pdf-icon-btn--headset" aria-label="听书功能（即将上线）" disabled>
+          <button type="button" className="pdf-icon-btn pdf-icon-btn--headset" aria-label="听书（即将上线）" disabled>
             🎧
           </button>
           <button type="button" className="pdf-icon-btn" aria-label="下一页" disabled={!canNext} onClick={() => turnPage("next")}>

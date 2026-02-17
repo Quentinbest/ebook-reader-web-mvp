@@ -432,6 +432,18 @@ textarea {
   overflow-x: hidden;
 }
 
+.reader-stage-loading {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.5rem;
+  z-index: 2;
+  background: rgba(20, 33, 55, 0.78);
+  color: #f4f7fd;
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+}
+
 .epub-container {
   width: 100%;
   min-height: 68vh;
