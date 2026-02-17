@@ -319,6 +319,12 @@ export default function PdfViewport({
   );
   const canPrev = page > 1 && !docLoading && !rendering;
   const canNext = page < Math.max(effectivePageCount, 1) && !docLoading && !rendering;
+  const canFirst = canPrev;
+  const canLast = canNext;
+
+  function adjustZoom(delta: number): void {
+    setZoom((prev) => clamp(prev + delta, 50, 200));
+  }
 
   return (
     <section className="reader-viewport" style={pageStyle}>
@@ -376,35 +382,71 @@ export default function PdfViewport({
         </button>
       </div>
 
-      <div className="reader-controls-inline">
-        <label>
-          页码
-          <input
-            type="number"
-            min={1}
-            max={Math.max(effectivePageCount, 1)}
-            value={page}
-            onChange={(event) => {
-              const next = Number(event.target.value);
-              if (!Number.isNaN(next) && next > 0) {
-                setPage(clamp(next, 1, Math.max(effectivePageCount, 1)));
-              }
-            }}
-          />
-          <span>/ {effectivePageCount || "?"}</span>
-        </label>
-        <label>
-          缩放
-          <input
-            type="range"
-            min={50}
-            max={200}
-            step={10}
-            value={zoom}
-            onChange={(event) => setZoom(Number(event.target.value))}
-          />
-          <span>{zoom}%</span>
-        </label>
+      <div className="pdf-bottom-bar" role="group" aria-label="翻页及页码">
+        <div className="pdf-bottom-bar__cluster">
+          <button type="button" className="pdf-icon-btn" aria-label="第一页" disabled={!canFirst} onClick={() => setPage(1)}>
+            «
+          </button>
+          <button type="button" className="pdf-icon-btn" aria-label="上一页" disabled={!canPrev} onClick={() => turnPage("prev")}>
+            ‹
+          </button>
+          <button
+            type="button"
+            className="pdf-icon-btn is-muted"
+            aria-label="缩小"
+            disabled={zoom <= 50}
+            onClick={() => adjustZoom(-10)}
+          >
+            ↶
+          </button>
+          <button
+            type="button"
+            className="pdf-icon-btn is-muted"
+            aria-label="放大"
+            disabled={zoom >= 200}
+            onClick={() => adjustZoom(10)}
+          >
+            ↷
+          </button>
+        </div>
+
+        <span className="pdf-page-indicator" aria-live="polite">
+          {page} / {effectivePageCount || "?"}
+        </span>
+
+        <input
+          type="range"
+          className="pdf-progress-slider"
+          aria-label="阅读进度"
+          min={1}
+          max={Math.max(effectivePageCount, 1)}
+          value={page}
+          onChange={(event) => {
+            const next = Number(event.target.value);
+            if (!Number.isNaN(next) && next > 0) {
+              setPage(clamp(next, 1, Math.max(effectivePageCount, 1)));
+            }
+          }}
+        />
+
+        <span className="pdf-zoom-text" aria-label={`缩放 ${zoom}%`}>
+          {zoom}%
+        </span>
+
+        <div className="pdf-bottom-bar__cluster">
+          <button type="button" className="pdf-icon-btn" aria-label="下一页" disabled={!canNext} onClick={() => turnPage("next")}>
+            ›
+          </button>
+          <button
+            type="button"
+            className="pdf-icon-btn"
+            aria-label="最后一页"
+            disabled={!canLast}
+            onClick={() => setPage(Math.max(effectivePageCount, 1))}
+          >
+            »
+          </button>
+        </div>
       </div>
     </section>
   );

@@ -354,6 +354,62 @@ textarea {
   flex-wrap: wrap;
 }
 
+.pdf-bottom-bar {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.36rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(16, 42, 70, 0.14);
+  background: #d9d9d9;
+}
+
+.pdf-bottom-bar__cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+}
+
+.pdf-icon-btn {
+  min-width: 1.65rem;
+  height: 1.6rem;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #636363;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.pdf-icon-btn.is-muted {
+  color: #8b8b8b;
+}
+
+.pdf-icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.pdf-page-indicator {
+  min-width: 6.1rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: #3f3f3f;
+  font-weight: 600;
+}
+
+.pdf-progress-slider {
+  width: 100%;
+  accent-color: #a1a1a1;
+}
+
+.pdf-zoom-text {
+  min-width: 2.7rem;
+  text-align: right;
+  color: #5a5a5a;
+  font-variant-numeric: tabular-nums;
+}
+
 .reader-content-stage {
   position: relative;
   overflow-x: hidden;
@@ -1044,6 +1100,21 @@ textarea {
 
   .pdf-canvas-group.is-multi {
     grid-template-columns: 1fr;
+  }
+
+  .pdf-bottom-bar {
+    grid-template-columns: auto 1fr auto;
+    gap: 0.45rem;
+  }
+
+  .pdf-bottom-bar__cluster:first-child .pdf-icon-btn.is-muted,
+  .pdf-zoom-text {
+    display: none;
+  }
+
+  .pdf-page-indicator {
+    min-width: auto;
+    font-size: 0.9rem;
   }
 
   .reader-page-turn {

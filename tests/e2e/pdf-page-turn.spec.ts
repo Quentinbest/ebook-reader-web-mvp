@@ -84,33 +84,41 @@ test("pdf supports page turning by wheel and arrow keys", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "阅读器" })).toBeVisible();
   await expect(page.getByText("正在渲染 PDF...")).toHaveCount(0);
 
-  const pageInput = page.getByLabel("页码");
-  await expect(pageInput).toHaveValue("1");
+  const pageIndicator = page.locator(".pdf-page-indicator");
+  await expect(pageIndicator).toHaveText("1 / 3");
 
   await page.locator(".pdf-frame").hover();
   for (let i = 0; i < 4; i += 1) {
     await expect(page.getByText("正在渲染 PDF...")).toHaveCount(0);
     await page.mouse.wheel(0, 1200);
-    const value = Number(await pageInput.inputValue());
+    const text = (await pageIndicator.textContent()) ?? "";
+    const value = Number(text.split("/")[0]?.trim() || "0");
     if (value > 1) {
       break;
     }
     await page.waitForTimeout(260);
   }
   await expect
-    .poll(async () => Number(await pageInput.inputValue()), {
+    .poll(async () => {
+      const text = (await pageIndicator.textContent()) ?? "";
+      return Number(text.split("/")[0]?.trim() || "0");
+    }, {
       timeout: 6_000
     })
     .toBeGreaterThan(1);
 
-  await pageInput.fill("2");
+  await page.getByLabel("阅读进度").evaluate((el) => {
+    const input = el as HTMLInputElement;
+    input.value = "2";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
   await expect(page.getByText("正在渲染 PDF...")).toHaveCount(0);
   await page.locator(".pdf-frame").click({ position: { x: 40, y: 40 } });
   await page.waitForTimeout(260);
   await page.keyboard.press("ArrowDown");
-  await expect(pageInput).toHaveValue("3");
+  await expect(pageIndicator).toHaveText("3 / 3");
 
   await page.waitForTimeout(260);
   await page.keyboard.press("ArrowUp");
-  await expect(pageInput).toHaveValue("2");
+  await expect(pageIndicator).toHaveText("2 / 3");
 });
