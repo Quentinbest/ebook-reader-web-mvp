@@ -327,7 +327,7 @@ export default function PdfViewport({
   }
 
   return (
-    <section className="reader-viewport" style={pageStyle}>
+    <section className="reader-viewport reader-viewport--with-bottom-bar" style={pageStyle}>
       <div className="reader-content-stage">
         <div
           className="pdf-frame"
