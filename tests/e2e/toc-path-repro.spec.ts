@@ -49,6 +49,55 @@ async function createNestedNavEpub(): Promise<Buffer> {
   return zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
 }
 
+async function createSingleImageCoverEpub(): Promise<Buffer> {
+  const zip = new JSZip();
+  zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
+  zip.file(
+    "META-INF/container.xml",
+    `<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="OPS/content.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>`
+  );
+  zip.file(
+    "OPS/content.opf",
+    `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="id">id-cover</dc:identifier>
+    <dc:title>Cover Ratio</dc:title>
+  </metadata>
+  <manifest>
+    <item id="cover" href="text/cover.xhtml" media-type="application/xhtml+xml"/>
+    <item id="img" href="images/cover.svg" media-type="image/svg+xml"/>
+  </manifest>
+  <spine>
+    <itemref idref="cover"/>
+  </spine>
+</package>`
+  );
+  zip.file(
+    "OPS/text/cover.xhtml",
+    `<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <body>
+    <img src="../images/cover.svg" alt="cover" width="600" height="900"/>
+  </body>
+</html>`
+  );
+  zip.file(
+    "OPS/images/cover.svg",
+    `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900">
+      <rect width="600" height="900" fill="#e5e5e5"/>
+      <rect x="60" y="120" width="480" height="120" fill="#1f2937"/>
+      <text x="300" y="200" text-anchor="middle" font-size="52" fill="#f8fafc" font-family="Arial">COVER</text>
+    </svg>`
+  );
+  return zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
+}
+
 test("toc jump works when nav href is relative to nav file", async ({ page }) => {
   await page.goto("/library");
   const epub = await createNestedNavEpub();
@@ -95,4 +144,42 @@ test("epub supports page turning by wheel and arrow keys inside iframe", async (
   await frame.locator("body").click();
   await page.keyboard.press("ArrowDown");
   await expect(frame.getByRole("heading", { name: "Chapter B" })).toBeVisible();
+});
+
+test("single-image epub cover keeps original aspect ratio", async ({ page }) => {
+  await page.goto("/library");
+  const epub = await createSingleImageCoverEpub();
+
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "cover-ratio.epub",
+    mimeType: "application/epub+zip",
+    buffer: epub
+  });
+
+  await expect(page).toHaveURL(/\/reader\//);
+
+  const frameHandle = await page.locator(".epub-container iframe").first().elementHandle();
+  expect(frameHandle).not.toBeNull();
+  const frame = await frameHandle!.contentFrame();
+  expect(frame).not.toBeNull();
+
+  await frame!.waitForFunction(() => {
+    const img = document.querySelector("img") as HTMLImageElement | null;
+    return Boolean(img && img.complete && img.getBoundingClientRect().width > 0);
+  });
+
+  const metrics = await frame!.evaluate(() => {
+    const img = document.querySelector("img") as HTMLImageElement | null;
+    if (!img) {
+      return null;
+    }
+    const rect = img.getBoundingClientRect();
+    const displayedRatio = rect.width / Math.max(1, rect.height);
+    const naturalRatio = img.naturalWidth > 0 && img.naturalHeight > 0 ? img.naturalWidth / img.naturalHeight : 600 / 900;
+    return { displayedRatio, naturalRatio };
+  });
+
+  expect(metrics).not.toBeNull();
+  const ratioDelta = Math.abs(metrics!.displayedRatio - metrics!.naturalRatio);
+  expect(ratioDelta).toBeLessThan(0.06);
 });
