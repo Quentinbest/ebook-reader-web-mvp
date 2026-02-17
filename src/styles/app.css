@@ -364,7 +364,7 @@ textarea {
 
 .pdf-bottom-bar {
   display: grid;
-  grid-template-columns: auto auto 1fr auto auto;
+  grid-template-columns: auto auto 1fr auto;
   align-items: center;
   gap: 0.6rem;
   padding: 0.36rem 0.5rem;
@@ -377,6 +377,10 @@ textarea {
   display: inline-flex;
   align-items: center;
   gap: 0.18rem;
+}
+
+.pdf-bottom-bar__cluster--right {
+  justify-self: end;
 }
 
 .pdf-icon-btn {
@@ -392,6 +396,10 @@ textarea {
 
 .pdf-icon-btn.is-muted {
   color: #8b8b8b;
+}
+
+.pdf-icon-btn--headset {
+  font-size: 1.08rem;
 }
 
 .pdf-icon-btn:hover:not(:disabled) {
@@ -411,10 +419,11 @@ textarea {
   accent-color: #a1a1a1;
 }
 
-.pdf-zoom-text {
-  min-width: 2.7rem;
+.pdf-page-indicator-secondary {
+  min-width: 4.4rem;
   text-align: right;
-  color: #5a5a5a;
+  color: #8d8d8d;
+  font-size: 0.86rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1068,7 +1077,8 @@ textarea {
   }
 
   .pdf-bottom-bar__cluster:first-child .pdf-icon-btn.is-muted,
-  .pdf-zoom-text {
+  .pdf-page-indicator-secondary,
+  .pdf-icon-btn--headset {
     display: none;
   }
 
