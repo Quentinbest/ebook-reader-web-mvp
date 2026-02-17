@@ -322,37 +322,6 @@ export default function PdfViewport({
 
   return (
     <section className="reader-viewport" style={pageStyle}>
-      <div className="reader-controls-inline">
-        <label>
-          页码
-          <input
-            type="number"
-            min={1}
-            max={Math.max(effectivePageCount, 1)}
-            value={page}
-            onChange={(event) => {
-              const next = Number(event.target.value);
-              if (!Number.isNaN(next) && next > 0) {
-                setPage(clamp(next, 1, Math.max(effectivePageCount, 1)));
-              }
-            }}
-          />
-          <span>/ {effectivePageCount || "?"}</span>
-        </label>
-        <label>
-          缩放
-          <input
-            type="range"
-            min={50}
-            max={200}
-            step={10}
-            value={zoom}
-            onChange={(event) => setZoom(Number(event.target.value))}
-          />
-          <span>{zoom}%</span>
-        </label>
-      </div>
-
       <div className="reader-content-stage">
         <button
           type="button"
@@ -405,6 +374,37 @@ export default function PdfViewport({
         >
           <span className="reader-page-turn__icon">{">"}</span>
         </button>
+      </div>
+
+      <div className="reader-controls-inline">
+        <label>
+          页码
+          <input
+            type="number"
+            min={1}
+            max={Math.max(effectivePageCount, 1)}
+            value={page}
+            onChange={(event) => {
+              const next = Number(event.target.value);
+              if (!Number.isNaN(next) && next > 0) {
+                setPage(clamp(next, 1, Math.max(effectivePageCount, 1)));
+              }
+            }}
+          />
+          <span>/ {effectivePageCount || "?"}</span>
+        </label>
+        <label>
+          缩放
+          <input
+            type="range"
+            min={50}
+            max={200}
+            step={10}
+            value={zoom}
+            onChange={(event) => setZoom(Number(event.target.value))}
+          />
+          <span>{zoom}%</span>
+        </label>
       </div>
     </section>
   );
