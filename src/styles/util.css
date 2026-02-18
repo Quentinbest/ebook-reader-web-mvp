@@ -1,0 +1,42 @@
+.loading,
+.empty-hint {
+  color: var(--books-text-secondary);
+}
+
+.error-banner {
+  border-radius: var(--books-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--books-danger) 35%, transparent);
+  background: color-mix(in srgb, var(--books-danger) 12%, transparent);
+  color: color-mix(in srgb, var(--books-danger) 88%, #3a1f1a);
+}
+
+.books-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.68rem;
+  border-radius: 999px;
+  background: var(--books-surface-muted);
+  border: 1px solid var(--books-stroke);
+  color: var(--books-text-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.books-icon-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.books-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

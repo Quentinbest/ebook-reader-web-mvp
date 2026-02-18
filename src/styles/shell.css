@@ -1,0 +1,117 @@
+.books-shell {
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 0.75rem;
+}
+
+.books-toolbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--books-radius-md);
+  border: 1px solid var(--books-stroke);
+  background: var(--books-elevated);
+  backdrop-filter: var(--books-blur);
+  box-shadow: var(--books-shadow-sm);
+}
+
+.books-traffic-lights {
+  display: inline-flex;
+  gap: 0.38rem;
+}
+
+.books-traffic-lights span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.books-traffic-lights span:nth-child(1) {
+  background: #ff5f57;
+}
+
+.books-traffic-lights span:nth-child(2) {
+  background: #febc2e;
+}
+
+.books-traffic-lights span:nth-child(3) {
+  background: #28c840;
+}
+
+.books-toolbar__title h1 {
+  margin: 0;
+  font-size: clamp(1.28rem, 1.9vw, 1.85rem);
+  font-weight: 650;
+  letter-spacing: -0.012em;
+  color: var(--books-text);
+}
+
+.books-toolbar__title p {
+  margin: 0.2rem 0 0;
+  color: var(--books-text-secondary);
+  font-size: 0.96rem;
+}
+
+.books-toolbar__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.books-workspace {
+  margin-top: 0.7rem;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 0.7rem;
+}
+
+.books-sidebar {
+  border: 1px solid var(--books-stroke);
+  background: var(--books-surface);
+  border-radius: var(--books-radius-lg);
+  padding: 0.75rem;
+  box-shadow: var(--books-shadow-sm);
+  min-height: calc(100vh - 108px);
+}
+
+.books-main {
+  min-width: 0;
+}
+
+.books-nav {
+  margin: 0;
+  display: inline-flex;
+  border-radius: 999px;
+  border: 1px solid var(--books-stroke);
+  background: var(--books-surface);
+  box-shadow: var(--books-shadow-sm);
+}
+
+.books-nav a {
+  color: var(--books-text-secondary);
+  font-weight: 600;
+}
+
+.books-nav a.is-active {
+  background: var(--books-accent-soft);
+  color: color-mix(in srgb, var(--books-accent) 80%, var(--books-text));
+}
+
+.books-content {
+  margin-top: 0.7rem;
+}
+
+@media (max-width: 1080px) {
+  .books-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .books-sidebar {
+    min-height: auto;
+    order: 2;
+  }
+}

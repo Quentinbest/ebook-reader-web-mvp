@@ -6,6 +6,7 @@ import OfflineBadge from "../components/OfflineBadge";
 import ReaderSettingsPanel from "../components/ReaderSettingsPanel";
 import SearchPanel from "../components/SearchPanel";
 import TocPanel from "../components/TocPanel";
+import { NoteIcon, SearchIcon, SlidersIcon } from "../components/icons/BooksIcons";
 import {
   deleteAnnotation,
   getAnnotations,
@@ -68,6 +69,7 @@ export default function ReaderPage(): JSX.Element {
     const raw = window.localStorage.getItem("reader_page_layout");
     return raw === "multi" ? "multi" : "single";
   });
+  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia("(min-width: 1081px)").matches);
 
   const noticeTimerRef = useRef<number | null>(null);
 
@@ -99,6 +101,18 @@ export default function ReaderPage(): JSX.Element {
         window.clearTimeout(noticeTimerRef.current);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1081px)");
+    const apply = (): void => setIsDesktop(media.matches);
+    apply();
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", apply);
+      return () => media.removeEventListener("change", apply);
+    }
+    media.addListener(apply);
+    return () => media.removeListener(apply);
   }, []);
 
   useEffect(() => {
@@ -304,28 +318,103 @@ export default function ReaderPage(): JSX.Element {
   }
 
   const subtitle = `${book.title} · ${Math.round(currentPercent)}%`;
+  const tocDisabled = book.format === "epub" ? !epubReady : tocLoading;
+
+  const handleTocNavigate = (href: string): void => {
+    if (book.format === "epub" && !epubReady) {
+      showNotice("正在加载…");
+      return;
+    }
+    if (book.format === "pdf" && !/^pdf:page:\d+$/i.test(href)) {
+      showNotice("无法跳转到该章节");
+      return;
+    }
+
+    setTargetLocator(href);
+    setCurrentHref(href);
+    if (!isDesktop) {
+      setTocOpen(false);
+    }
+  };
 
   return (
     <AppShell
       title="阅读器"
       subtitle={subtitle}
+      toolbar={
+        <div className="books-reader-topbar__group">
+          <button type="button" className="books-chip books-icon-label" onClick={() => setActiveTool("search")}>
+            <SearchIcon />
+            检索
+          </button>
+          <button type="button" className="books-chip books-icon-label" onClick={() => setActiveTool("settings")}>
+            <SlidersIcon />
+            显示
+          </button>
+          <button type="button" className="books-chip books-icon-label" onClick={() => setActiveTool("annotation")}>
+            <NoteIcon />
+            批注
+          </button>
+        </div>
+      }
+      sidebar={
+        isDesktop ? (
+          <section className="books-reader-side">
+            <button
+              type="button"
+              className="books-reader-side__toggle"
+              aria-pressed={tocOpen}
+              onClick={() => setTocOpen((prev) => !prev)}
+            >
+              目录
+            </button>
+            <TocPanel
+              mode="embedded"
+              open={tocOpen}
+              bookTitle={book.title}
+              bookAuthor={book.author}
+              bookCoverUrl={book.coverUrl}
+              items={tocEntries}
+              currentHref={currentHref}
+              loading={tocLoading}
+              error={tocError}
+              disabled={tocDisabled}
+              onClose={() => setTocOpen(false)}
+              onNavigate={handleTocNavigate}
+            />
+          </section>
+        ) : undefined
+      }
       rightSlot={
         <div className="reader-top-actions">
           <OfflineBadge />
           <Link to={`/notes/${book.id}`}>批注页</Link>
         </div>
       }
+      contentClassName="books-reader-shell"
     >
-      <button
-        type="button"
-        className="toc-side-trigger"
-        aria-pressed={tocOpen}
-        onClick={() => setTocOpen((prev) => !prev)}
-      >
-        目录
-      </button>
+      {!isDesktop ? (
+        <button
+          type="button"
+          className="toc-side-trigger"
+          aria-pressed={tocOpen}
+          onClick={() => setTocOpen((prev) => !prev)}
+        >
+          目录
+        </button>
+      ) : null}
 
-      <div className={`reader-page theme-${preferences.theme}`}>
+      <div className={`reader-page theme-${preferences.theme} books-reader-pane`}>
+        <div className="books-reader-topbar">
+          <div className="books-reader-topbar__group">
+            <span className="books-chip">{book.format.toUpperCase()}</span>
+            <span className="books-chip">{Math.round(currentPercent)}%</span>
+          </div>
+          <div className="books-reader-topbar__group">
+            <span className="books-chip">{pageLayout === "single" ? "单页" : "双页"}</span>
+          </div>
+        </div>
+
         <section className={`reader-main reader-main--${pageLayout}`}>
           <Suspense fallback={<p className="loading">阅读器加载中...</p>}>
             {book.format === "epub" ? (
@@ -522,34 +611,22 @@ export default function ReaderPage(): JSX.Element {
         </div>
       ) : null}
 
-      <TocPanel
-        open={tocOpen}
-        bookTitle={book.title}
-        bookAuthor={book.author}
-        bookCoverUrl={book.coverUrl}
-        items={tocEntries}
-        currentHref={currentHref}
-        loading={tocLoading}
-        error={tocError}
-        disabled={book.format === "epub" ? !epubReady : tocLoading}
-        onClose={() => setTocOpen(false)}
-        onNavigate={(href) => {
-          if (book.format === "epub" && !epubReady) {
-            showNotice("正在加载…");
-            return;
-          }
-          if (book.format === "pdf" && !/^pdf:page:\d+$/i.test(href)) {
-            showNotice("无法跳转到该章节");
-            return;
-          }
-
-          setTargetLocator(href);
-          setCurrentHref(href);
-          if (window.matchMedia("(max-width: 980px)").matches) {
-            setTocOpen(false);
-          }
-        }}
-      />
+      {!isDesktop ? (
+        <TocPanel
+          open={tocOpen}
+          mode="drawer"
+          bookTitle={book.title}
+          bookAuthor={book.author}
+          bookCoverUrl={book.coverUrl}
+          items={tocEntries}
+          currentHref={currentHref}
+          loading={tocLoading}
+          error={tocError}
+          disabled={book.format === "epub" ? !epubReady : tocLoading}
+          onClose={() => setTocOpen(false)}
+          onNavigate={handleTocNavigate}
+        />
+      ) : null}
 
       {notice ? <div className="reader-toast">{notice}</div> : null}
     </AppShell>

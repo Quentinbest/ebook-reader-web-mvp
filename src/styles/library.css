@@ -1,0 +1,123 @@
+.library-layout.books-library {
+  display: grid;
+  gap: 1rem;
+}
+
+.books-library-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.books-library-toolbar h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 620;
+}
+
+.books-library-panel {
+  border: 1px solid var(--books-stroke);
+  background: var(--books-surface);
+  border-radius: var(--books-radius-lg);
+  box-shadow: var(--books-shadow-sm);
+  padding: 0.9rem;
+}
+
+.books-collections {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.books-collections h3 {
+  margin: 0.2rem 0 0.45rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--books-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.books-collection-btn {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--books-text);
+  padding: 0.52rem 0.62rem;
+  text-align: left;
+  font-weight: 560;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+.books-collection-btn:hover {
+  background: var(--books-surface-muted);
+}
+
+.books-collection-btn.is-active {
+  border-color: var(--books-stroke-strong);
+  background: var(--books-accent-soft);
+}
+
+.drop-zone {
+  background: linear-gradient(180deg, var(--books-surface), var(--books-surface-muted));
+  border: 1px dashed var(--books-stroke-strong);
+  box-shadow: none;
+}
+
+.drop-zone > div {
+  padding: 1.8rem 1.2rem;
+}
+
+.drop-zone h2 {
+  font-size: 1.18rem;
+  font-family: inherit;
+}
+
+.book-grid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.9rem;
+}
+
+.book-card {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  border-radius: 14px;
+  border: 1px solid var(--books-stroke);
+  box-shadow: var(--books-shadow-sm);
+  background: var(--books-surface);
+}
+
+.book-card__cover {
+  background: linear-gradient(160deg, #f79b7d, #f16f45);
+  color: #fff;
+}
+
+.book-card__meta h3 {
+  font-size: 0.98rem;
+  font-weight: 620;
+  color: var(--books-text);
+}
+
+.book-card__meta p {
+  color: var(--books-text-secondary);
+}
+
+.book-card__actions {
+  margin-top: 0.1rem;
+}
+
+.book-card__actions a {
+  padding: 0.36rem 0.58rem;
+  border-radius: 8px;
+  background: var(--books-surface-muted);
+  border: 1px solid var(--books-stroke);
+  color: var(--books-text);
+  text-decoration: none;
+}
+
+.book-card__actions button {
+  border-radius: 8px;
+}

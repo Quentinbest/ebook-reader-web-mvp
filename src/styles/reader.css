@@ -1,0 +1,212 @@
+.books-reader-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.72rem;
+}
+
+.books-reader-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid var(--books-stroke);
+  background: var(--books-surface);
+  box-shadow: var(--books-shadow-sm);
+}
+
+.books-reader-topbar__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.books-reader-side {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.books-reader-side__toggle {
+  width: 100%;
+  border-radius: 10px;
+  padding: 0.52rem 0.7rem;
+  background: var(--books-surface-muted);
+  color: var(--books-text);
+  border: 1px solid var(--books-stroke);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.books-reader-side__toggle[aria-pressed="true"] {
+  background: var(--books-accent-soft);
+}
+
+.books-reader-pane {
+  background: var(--books-surface);
+  border: 1px solid var(--books-stroke);
+  border-radius: var(--books-radius-lg);
+  padding: 0.75rem;
+  box-shadow: var(--books-shadow-sm);
+}
+
+.reader-main {
+  background: var(--books-surface);
+  border-color: var(--books-stroke);
+  border-radius: var(--books-radius-lg);
+  box-shadow: var(--books-shadow-sm);
+  min-height: min(82vh, 980px);
+}
+
+.reader-main--single {
+  max-width: 1160px;
+}
+
+.reader-main--multi {
+  max-width: none;
+}
+
+.reader-tool-fab__trigger {
+  border-radius: 12px;
+  background: #1e2128;
+  color: #f5f7fd;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.reader-tool-fab__menu {
+  border-radius: 12px;
+  border: 1px solid var(--books-stroke);
+  background: var(--books-surface);
+}
+
+.reader-tool-fab__menu button {
+  background: transparent;
+  color: var(--books-text);
+  border: 1px solid var(--books-stroke);
+}
+
+.reader-tool-overlay {
+  background: rgba(12, 16, 24, 0.3);
+}
+
+.reader-tool-drawer {
+  border-radius: 14px;
+  border-color: var(--books-stroke);
+  background: var(--books-surface);
+}
+
+.reader-tool-drawer__header h3 {
+  font-family: inherit;
+  font-weight: 650;
+}
+
+.reader-viewport {
+  min-height: 0;
+}
+
+.reader-viewport--with-bottom-bar {
+  gap: 0.7rem;
+}
+
+.reader-content-stage {
+  border-radius: 12px;
+  border: 1px solid var(--books-stroke);
+  background: var(--books-surface-muted);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+.reader-stage-loading {
+  background: rgba(31, 36, 46, 0.8);
+}
+
+.epub-container,
+.pdf-frame {
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--books-stroke-strong) 88%, transparent);
+  background: #fff;
+}
+
+.pdf-bottom-bar {
+  border-color: var(--books-stroke);
+  background: var(--books-surface-muted);
+  box-shadow: var(--books-shadow-sm);
+}
+
+.pdf-icon-btn {
+  color: var(--books-text-secondary);
+}
+
+.pdf-icon-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--books-surface) 80%, transparent);
+}
+
+.pdf-page-indicator {
+  color: var(--books-text);
+}
+
+.toc-side-trigger {
+  display: none;
+}
+
+.toc-layer.is-embedded {
+  position: static;
+  inset: auto;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.toc-layer.is-embedded .toc-drawer {
+  position: static;
+  width: auto;
+  height: min(72vh, 760px);
+  border-radius: 12px;
+  box-shadow: none;
+  border-color: var(--books-stroke);
+  background: var(--books-surface);
+}
+
+.toc-layer.is-embedded .toc-drawer__toolbar,
+.toc-layer.is-embedded .toc-drawer__book,
+.toc-layer.is-embedded .toc-drawer__footer {
+  border-color: var(--books-stroke);
+}
+
+.toc-layer.is-embedded .toc-drawer__toolbar h3,
+.toc-layer.is-embedded .toc-book__title {
+  color: var(--books-text);
+}
+
+.toc-layer.is-embedded .toc-book__author,
+.toc-layer.is-embedded .toc-item__meta {
+  color: var(--books-text-secondary);
+}
+
+.toc-layer.is-embedded .toc-item__link {
+  color: var(--books-text);
+}
+
+.toc-layer.is-embedded .toc-item.is-active > .toc-item__row .toc-item__link {
+  background: var(--books-accent-soft);
+  color: color-mix(in srgb, var(--books-accent) 82%, var(--books-text));
+}
+
+@media (max-width: 1080px) {
+  .books-reader-pane {
+    padding: 0.6rem;
+  }
+
+  .reader-main {
+    min-height: 74vh;
+  }
+
+  .toc-side-trigger {
+    display: inline-flex;
+  }
+
+  .books-reader-side {
+    display: none;
+  }
+}

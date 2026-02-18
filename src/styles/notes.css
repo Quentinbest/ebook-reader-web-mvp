@@ -1,0 +1,60 @@
+.books-notes-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 0.7rem;
+}
+
+.books-notes-sidebar,
+.notes-page {
+  border: 1px solid var(--books-stroke);
+  border-radius: var(--books-radius-lg);
+  background: var(--books-surface);
+  box-shadow: var(--books-shadow-sm);
+}
+
+.books-notes-sidebar {
+  padding: 0.7rem;
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
+}
+
+.books-notes-sidebar h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  color: var(--books-text-secondary);
+}
+
+.books-notes-sidebar p {
+  margin: 0;
+  color: var(--books-text-secondary);
+  font-size: 0.9rem;
+}
+
+.notes-page {
+  padding: 0.8rem;
+}
+
+.note-item {
+  border-radius: 12px;
+  border: 1px solid var(--books-stroke);
+  background: var(--books-surface-muted);
+}
+
+.note-item header button {
+  border: 1px solid var(--books-stroke);
+  background: var(--books-surface);
+  color: var(--books-text);
+}
+
+.note-item blockquote {
+  border-left-color: color-mix(in srgb, var(--books-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--books-accent) 10%, transparent);
+}
+
+@media (max-width: 1080px) {
+  .books-notes-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -4,6 +4,7 @@ import type { TocItem } from "../types/contracts";
 
 type TocPanelProps = {
   open: boolean;
+  mode?: "embedded" | "drawer";
   bookTitle?: string;
   bookAuthor?: string;
   bookCoverUrl?: string;
@@ -131,6 +132,7 @@ function TocTreeItem({
 
 export default function TocPanel({
   open,
+  mode = "drawer",
   bookTitle,
   bookAuthor,
   bookCoverUrl,
@@ -282,12 +284,17 @@ export default function TocPanel({
     });
   };
 
+  const layerClass =
+    mode === "embedded"
+      ? "toc-layer is-embedded"
+      : `toc-layer ${compact ? "is-compact" : "is-docked"}`;
+
   return (
-    <div className={`toc-layer ${compact ? "is-compact" : "is-docked"}`} onClick={compact ? onClose : undefined}>
+    <div className={layerClass} onClick={mode === "embedded" ? undefined : compact ? onClose : undefined}>
       <aside className="toc-drawer" aria-label="目录面板" onClick={(event) => event.stopPropagation()}>
         <header className="toc-drawer__toolbar">
           <div className="toc-toolbar-group">
-            <button type="button" className="toc-toolbar-btn" onClick={scrollToTop} aria-label="回到目录顶部">
+            <button type="button" className="toc-toolbar-btn" onClick={scrollToTop} aria-label="回到顶部">
               ↑
             </button>
           </div>
@@ -296,7 +303,7 @@ export default function TocPanel({
             <button type="button" className="toc-toolbar-btn" onClick={toggleExpandAll} aria-label={allExpanded ? "折叠全部章节" : "展开全部章节"}>
               {allExpanded ? "▣" : "▢"}
             </button>
-            <button type="button" className="toc-toolbar-btn" onClick={onClose} aria-label="收起目录">
+            <button type="button" className="toc-toolbar-btn" onClick={onClose} aria-label="收起面板">
               ×
             </button>
           </div>
@@ -355,7 +362,7 @@ export default function TocPanel({
 
         <footer className="toc-drawer__footer">
           <div className="toc-footer-actions" role="toolbar" aria-label="目录操作栏">
-            <button type="button" className="toc-footer-icon-btn" onClick={scrollToTop} aria-label="回到目录顶部">
+            <button type="button" className="toc-footer-icon-btn" onClick={scrollToTop} aria-label="回到顶部">
               ⇡
             </button>
             <button
@@ -375,7 +382,7 @@ export default function TocPanel({
             >
               {allExpanded ? "▤" : "▥"}
             </button>
-            <button type="button" className="toc-footer-icon-btn" onClick={onClose} aria-label="收起目录">
+            <button type="button" className="toc-footer-icon-btn" onClick={onClose} aria-label="收起面板">
               ✕
             </button>
           </div>
