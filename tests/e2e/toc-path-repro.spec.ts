@@ -1,6 +1,16 @@
 import { expect, test } from "@playwright/test";
 import JSZip from "jszip";
 
+function xhtmlDocument(title: string, body: string): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><title>${title}</title></head>
+  <body>
+    ${body}
+  </body>
+</html>`;
+}
+
 async function createNestedNavEpub(): Promise<Buffer> {
   const zip = new JSZip();
   zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
@@ -36,6 +46,7 @@ async function createNestedNavEpub(): Promise<Buffer> {
     "OPS/text/nav.xhtml",
     `<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+  <head><title>Navigation</title></head>
   <body>
     <nav epub:type="toc" id="toc"><ol>
       <li><a href="ch1.xhtml">Chapter A</a></li>
@@ -44,8 +55,8 @@ async function createNestedNavEpub(): Promise<Buffer> {
   </body>
 </html>`
   );
-  zip.file("OPS/text/ch1.xhtml", `<html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Chapter A</h1></body></html>`);
-  zip.file("OPS/text/ch2.xhtml", `<html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Chapter B</h1></body></html>`);
+  zip.file("OPS/text/ch1.xhtml", xhtmlDocument("Chapter A", "<h1>Chapter A</h1>"));
+  zip.file("OPS/text/ch2.xhtml", xhtmlDocument("Chapter B", "<h1>Chapter B</h1>"));
   return zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
 }
 
@@ -80,12 +91,7 @@ async function createSingleImageCoverEpub(): Promise<Buffer> {
   );
   zip.file(
     "OPS/text/cover.xhtml",
-    `<?xml version="1.0" encoding="UTF-8"?>
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <body>
-    <img src="../images/cover.svg" alt="cover" width="600" height="900"/>
-  </body>
-</html>`
+    xhtmlDocument("Cover Ratio", '<img src="../images/cover.svg" alt="cover" width="600" height="900"/>')
   );
   zip.file(
     "OPS/images/cover.svg",
