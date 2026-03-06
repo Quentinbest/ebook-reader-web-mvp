@@ -75,11 +75,14 @@ The repo now includes reusable capture commands:
 
 ```bash
 cd /Users/quentin/workspace/ebook-reader
+npm run demo:capture:all
 npm run demo:serve:design
 npm run demo:capture:mobile-shell
 npm run demo:capture:mobile-panes
 npm run demo:capture:desktop-visual
 ```
+
+`demo:capture:all` is the preferred entry point when you want one full desktop + mobile evidence refresh.
 
 Environment overrides:
 - `APP_URL` overrides the local preview URL
