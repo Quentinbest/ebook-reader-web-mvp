@@ -147,9 +147,10 @@ test.describe("E2E smoke", () => {
     const searchInput = page.getByTestId("library-search-input");
     await searchInput.fill("whale");
 
-    await expect(page.getByText("Whale Atlas")).toBeVisible();
-    await expect(page.getByText("Mountain Atlas")).toHaveCount(0);
-    await expect(page.getByTestId("library-book-grid").locator("[data-testid='book-card']")).toHaveCount(1);
+    const grid = page.getByTestId("library-book-grid");
+    await expect(grid.getByText("Whale Atlas")).toBeVisible();
+    await expect(grid.getByText("Mountain Atlas")).toHaveCount(0);
+    await expect(grid.locator("[data-testid='book-card']")).toHaveCount(1);
   });
 
   test("shows error for unsupported file format", async ({ page }) => {

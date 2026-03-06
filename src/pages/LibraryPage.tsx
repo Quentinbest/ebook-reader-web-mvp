@@ -108,6 +108,8 @@ export default function LibraryPage(): JSX.Element {
   const hasBooks = books.length > 0;
   const resultLabel = query.trim() ? `${visibleBooks.length} 条结果` : `${collectionBooks.length} 本书`;
   const currentCollectionLabel = collection === "library" ? "书库" : collection === "recent" ? "最近阅读" : "标签";
+  const currentBook = recentBooks[0] ?? sortedBooks[0] ?? null;
+  const currentBookProgress = currentBook ? Math.round(progressByBook[currentBook.id] ?? 0) : 0;
 
   return (
     <AppShell
@@ -169,8 +171,15 @@ export default function LibraryPage(): JSX.Element {
 
           <section className="books-sidebar-group books-sidebar-group--muted">
             <h2>状态</h2>
-            <p>{hasBooks ? `当前视图：${currentCollectionLabel}` : "导入一本书开始阅读。"}</p>
-            <p>{query.trim() ? `搜索关键词：${query}` : "支持 EPUB / PDF，本地离线可读。"}</p>
+            {currentBook ? (
+              <>
+                <p className="books-sidebar-group__title">{currentBook.title}</p>
+                <p>{currentBookProgress}% 已读</p>
+              </>
+            ) : (
+              <p>导入一本书开始阅读。</p>
+            )}
+            <p>{query.trim() ? `搜索关键词：${query}` : hasBooks ? `当前视图：${currentCollectionLabel}` : "支持 EPUB / PDF，本地离线可读。"}</p>
           </section>
         </>
       }
@@ -202,7 +211,7 @@ export default function LibraryPage(): JSX.Element {
             <section className="books-panel library-panel__header">
               <div>
                 <h2>{currentCollectionLabel}</h2>
-                <p>{query.trim() ? `关键词“${query}”的筛选结果` : "封面优先的桌面书架视图"}</p>
+                <p>{query.trim() ? `关键词“${query}”的筛选结果` : "封面优先的桌面书架，保持本地阅读进度同步。"}</p>
               </div>
               <span className="books-chip">{resultLabel}</span>
             </section>

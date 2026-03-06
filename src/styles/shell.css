@@ -35,7 +35,7 @@
 }
 
 .books-sidebar__brand strong {
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   letter-spacing: -0.03em;
 }
 
@@ -55,10 +55,25 @@
   font-weight: 600;
 }
 
+.books-sidebar__nav span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.72rem 0.9rem;
+  border-radius: 14px;
+  color: var(--books-text-secondary);
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
 .books-sidebar__nav a.is-active {
   background: var(--books-accent-soft);
   border-color: color-mix(in srgb, var(--books-accent) 28%, transparent);
   color: color-mix(in srgb, var(--books-accent) 82%, var(--books-text));
+}
+
+.books-sidebar__nav .is-disabled {
+  opacity: 0.78;
 }
 
 .books-sidebar__content {
@@ -168,7 +183,7 @@
 
 .books-toolbar__title h1 {
   margin: 0;
-  font-size: clamp(1.6rem, 2vw, 2.25rem);
+  font-size: clamp(2rem, 2.6vw, 3rem);
   font-weight: 700;
   letter-spacing: -0.04em;
 }

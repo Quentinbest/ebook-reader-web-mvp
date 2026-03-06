@@ -4,7 +4,7 @@
 }
 
 .books-library-content {
-  max-width: 1200px;
+  max-width: 1080px;
 }
 
 .library-toolbar-actions {
@@ -62,7 +62,7 @@
 .books-panel--empty h2,
 .library-panel__header h2 {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.6rem;
   letter-spacing: -0.03em;
 }
 

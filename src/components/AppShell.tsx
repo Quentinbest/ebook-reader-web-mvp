@@ -12,7 +12,11 @@ type AppShellProps = {
   shellKind?: "library" | "reader" | "notes";
 };
 
-const navItems = [{ to: "/library", label: "书架" }];
+const navItems = [
+  { to: "/library", label: "书架", activePrefixes: ["/library", "/reader", "/notes"] },
+  { to: "", label: "正在阅读", activePrefixes: [] },
+  { to: "", label: "书单", activePrefixes: [] }
+] as const;
 
 export default function AppShell({
   title,
@@ -32,19 +36,25 @@ export default function AppShell({
         <aside className="books-sidebar" aria-label="应用侧边栏">
           <div className="books-sidebar__brand">
             <span className="books-sidebar__eyebrow">Desktop Reader</span>
-            <strong>Ebook Reader</strong>
+            <strong>Atlas Reader</strong>
           </div>
 
           <nav className="books-sidebar__nav" aria-label="主导航">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={location.pathname.startsWith(item.to) ? "is-active" : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) =>
+              item.to ? (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  className={item.activePrefixes.some((prefix) => location.pathname.startsWith(prefix)) ? "is-active" : undefined}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <span key={item.label} className="is-disabled">
+                  {item.label}
+                </span>
+              )
+            )}
           </nav>
 
           {sidebar ? <div className="books-sidebar__content">{sidebar}</div> : null}
