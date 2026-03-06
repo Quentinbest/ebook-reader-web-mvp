@@ -279,6 +279,7 @@
 .book-card__actions {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .book-card__action-link,
@@ -329,16 +330,53 @@
 
 @media (hover: hover) and (min-width: 1081px) {
   .book-card__actions {
+    max-height: 0;
+    margin-top: -6px;
+    overflow: hidden;
     opacity: 0;
-    transform: translateY(4px);
-    transition: opacity 160ms ease, transform 160ms ease;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition:
+      max-height 180ms ease,
+      margin-top 180ms ease,
+      opacity 160ms ease,
+      transform 160ms ease,
+      visibility 0s linear 180ms;
     pointer-events: none;
+  }
+
+  .book-card__action-link,
+  .book-card__actions button {
+    min-height: 30px;
+    padding-inline: 10px;
+    font-size: 0.78rem;
+  }
+
+  .book-card__action-link {
+    border-color: color-mix(in srgb, var(--books-border) 72%, transparent);
+    background: transparent;
+    color: color-mix(in srgb, var(--books-text-secondary) 92%, transparent);
+  }
+
+  .book-card__actions .books-button--danger {
+    border-color: color-mix(in srgb, var(--books-danger) 14%, transparent);
+    background: transparent;
+    color: color-mix(in srgb, var(--books-danger) 76%, var(--books-text-secondary));
   }
 
   .book-card:hover .book-card__actions,
   .book-card:focus-within .book-card__actions {
+    max-height: 38px;
+    margin-top: 2px;
     opacity: 1;
+    visibility: visible;
     transform: translateY(0);
+    transition:
+      max-height 180ms ease,
+      margin-top 180ms ease,
+      opacity 160ms ease,
+      transform 160ms ease,
+      visibility 0s;
     pointer-events: auto;
   }
 }
