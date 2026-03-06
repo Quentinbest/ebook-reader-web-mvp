@@ -34,28 +34,30 @@ export default function AppShell({
     <div className={`app-shell books-shell books-shell--${shellKind}`.trim()}>
       <div className="books-layout">
         <aside className="books-sidebar" aria-label="应用侧边栏">
-          <div className="books-sidebar__brand">
-            <span className="books-sidebar__eyebrow">Desktop Reader</span>
-            <strong>Atlas Reader</strong>
-          </div>
+          <div className="books-sidebar__primary">
+            <div className="books-sidebar__brand">
+              <span className="books-sidebar__eyebrow">Desktop Reader</span>
+              <strong>Atlas Reader</strong>
+            </div>
 
-          <nav className="books-sidebar__nav" aria-label="主导航">
-            {navItems.map((item) =>
-              item.to ? (
-                <Link
-                  key={item.label}
-                  to={item.to}
-                  className={item.activePrefixes.some((prefix) => location.pathname.startsWith(prefix)) ? "is-active" : undefined}
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <span key={item.label} className="is-disabled">
-                  {item.label}
-                </span>
-              )
-            )}
-          </nav>
+            <nav className="books-sidebar__nav" aria-label="主导航">
+              {navItems.map((item) =>
+                item.to ? (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className={item.activePrefixes.some((prefix) => location.pathname.startsWith(prefix)) ? "is-active" : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span key={item.label} className="is-disabled">
+                    {item.label}
+                  </span>
+                )
+              )}
+            </nav>
+          </div>
 
           {sidebar ? <div className="books-sidebar__content">{sidebar}</div> : null}
         </aside>

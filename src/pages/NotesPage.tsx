@@ -25,6 +25,8 @@ export default function NotesPage(): JSX.Element {
   }, [bookId]);
 
   const latestLocator = useMemo(() => notes[0]?.locator ?? "暂无定位", [notes]);
+  const notesSummaryLine = notes.length ? `${notes.length} 条批注 · 可回跳正文` : "等待新增";
+  const notesSummaryLocator = notes.length ? `最近定位：${latestLocator}` : "回到阅读器新增批注后，会在这里形成工作区。";
 
   if (loading) {
     return (
@@ -74,6 +76,16 @@ export default function NotesPage(): JSX.Element {
       contentClassName="books-notes-shell"
     >
       <div className="books-notes-layout">
+        <section className="notes-mobile-summary" aria-label="批注摘要">
+          <span className="notes-mobile-summary__eyebrow">批注工作区</span>
+          <strong>{book.title}</strong>
+          <p>{book.author || "本地阅读"}</p>
+          <div className="notes-mobile-summary__meta">
+            <span>{notesSummaryLine}</span>
+            <span>{notesSummaryLocator}</span>
+          </div>
+        </section>
+
         <section className="notes-locator-rail" data-testid="notes-locator-rail">
           <header className="notes-section-header">
             <h2>定位目录</h2>
@@ -101,7 +113,7 @@ export default function NotesPage(): JSX.Element {
         <section className="notes-editor-list">
           <header className="notes-section-header">
             <h2>批注内容</h2>
-            <span className="books-chip">双击定位回正文</span>
+            <span className="books-chip">点击定位回正文</span>
           </header>
 
           {notes.map((item) => (

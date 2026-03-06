@@ -872,11 +872,13 @@
   .reader-workspace.has-pane,
   .reader-workspace {
     grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
   }
 
   .reader-page {
     min-height: auto;
-    padding: 20px;
+    padding: 14px 12px 18px;
+    border-radius: 22px;
   }
 
   .reader-page-arrow,
@@ -885,25 +887,128 @@
   }
 
   .reader-mobile-panel-wrap {
-    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    display: grid;
+    align-items: end;
+    padding: 16px 12px max(16px, env(safe-area-inset-bottom, 0px));
+    background: rgba(14, 20, 31, 0.22);
   }
 
   .reader-viewport {
-    min-height: 520px;
+    min-height: 460px;
     padding: 0;
   }
 
   .reader-content-stage,
   .epub-container,
   .pdf-frame {
-    min-height: 420px;
+    min-height: 360px;
+  }
+
+  .reader-mobile-panel {
+    max-height: min(78vh, 680px);
+    border-radius: 20px;
+    box-shadow: 0 20px 44px rgba(16, 24, 40, 0.16);
+  }
+
+  .reader-mobile-panel__header {
+    min-height: 50px;
+    padding: 12px 14px;
+  }
+
+  .reader-mobile-panel__title {
+    gap: 3px;
+  }
+
+  .reader-mobile-panel__title h3 {
+    font-size: 1rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .reader-mobile-panel__header .books-button {
+    min-height: 36px;
+    min-width: 36px;
+    padding: 0.42rem 0.68rem;
+    border-radius: 12px;
+  }
+
+  .reader-mobile-panel__body {
+    max-height: calc(min(78vh, 680px) - 54px);
+    overflow: auto;
+    padding: 12px 14px 16px;
+  }
+
+  .toc-drawer-layer {
+    padding: 12px;
   }
 }
 
 @media (max-width: 760px) {
   .reader-toolbar-actions {
     width: 100%;
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+    justify-content: stretch;
+  }
+
+  .reader-toolbar-action {
+    min-height: 32px;
+    width: 100%;
+    justify-content: center;
+    padding: 0.4rem 0.2rem;
+    border-radius: 10px;
+  }
+
+  .reader-toolbar-action svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .reader-toolbar-action__label {
+    font-size: 0.68rem;
+  }
+
+  .reader-inline-progress {
+    grid-column: 1 / span 2;
+    min-height: 28px;
+    padding: 0 2px 0 0;
+    gap: 5px;
+    font-size: 0.68rem;
+  }
+
+  .reader-inline-progress__track {
+    width: 100%;
+  }
+
+  .reader-toolbar-status {
+    grid-column: span 2;
+    justify-content: end;
+    min-height: 28px;
+  }
+
+  .reader-page {
+    padding: 12px 0 16px;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .reader-main {
+    max-width: none;
+  }
+
+  .reader-viewport {
+    gap: 12px;
+    min-height: 420px;
+  }
+
+  .reader-content-stage,
+  .epub-container,
+  .pdf-frame {
+    min-height: 320px;
   }
 
   .search-panel__form,
@@ -911,12 +1016,143 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .search-panel,
+  .settings-panel,
+  .annotation-panel,
+  .toc-panel {
+    gap: 10px;
+  }
+
+  .utility-pane__body,
+  .reader-mobile-panel__body {
+    padding-inline: 12px;
+  }
+
+  .search-panel__form {
+    gap: 8px;
+  }
+
+  .search-panel__input {
+    min-height: 36px;
+    padding: 0 11px;
+    gap: 8px;
+  }
+
+  .search-results button {
+    padding: 10px 0;
+  }
+
+  .search-results strong {
+    margin-bottom: 3px;
+    font-size: 0.75rem;
+  }
+
+  .search-results span {
+    font-size: 0.92rem;
+    line-height: 1.42;
+  }
+
+  .search-panel__status {
+    font-size: 0.78rem;
+  }
+
+  .settings-preview {
+    gap: 8px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .settings-preview strong {
+    font-size: 1rem;
+  }
+
+  .settings-preview p {
+    font-size: 0.92rem;
+    line-height: 1.46;
+  }
+
+  .settings-panel__group {
+    gap: 8px;
+    padding: 11px 0 12px;
+  }
+
+  .settings-panel__label,
+  .settings-field > span {
+    font-size: 0.78rem;
+  }
+
+  .settings-segmented {
+    gap: 5px;
+  }
+
+  .settings-segmented button {
+    min-height: 36px;
+    font-size: 0.8rem;
+  }
+
+  .annotation-form,
+  .annotation-list li {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .annotation-panel__summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    font-size: 0.76rem;
+  }
+
+  .annotation-panel__summary-locator {
+    flex-basis: 100%;
+    white-space: normal;
+    text-overflow: clip;
+  }
+
   .pdf-bottom-bar__cluster,
   .pdf-bottom-bar__cluster--right {
     justify-self: start;
   }
 
+  .pdf-bottom-bar {
+    gap: 8px;
+    padding-top: 2px;
+  }
+
+  .pdf-page-indicator {
+    min-width: 0;
+    font-size: 0.84rem;
+  }
+
+  .pdf-icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+  }
+
   .pdf-canvas-group.is-multi {
     grid-template-columns: 1fr;
+  }
+
+  .toc-item__row {
+    min-height: 46px;
+  }
+
+  .toc-panel--content .toc-item__row {
+    grid-template-columns: minmax(0, 1fr) 28px;
+    gap: 8px;
+  }
+
+  .toc-item__link {
+    min-height: 44px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.24;
+  }
+
+  .toc-item__meta {
+    min-width: 28px;
+    font-size: 0.7rem;
   }
 }

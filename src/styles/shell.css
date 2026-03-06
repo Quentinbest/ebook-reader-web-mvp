@@ -21,6 +21,11 @@
   box-shadow: var(--books-shadow-sm);
 }
 
+.books-sidebar__primary {
+  display: grid;
+  gap: 24px;
+}
+
 .books-sidebar__brand {
   display: grid;
   gap: 4px;
@@ -426,16 +431,65 @@
 
 @media (max-width: 1080px) {
   .app-shell.books-shell {
-    padding: 16px;
+    padding: 12px;
   }
 
   .books-layout {
     grid-template-columns: minmax(0, 1fr);
-    min-height: calc(100vh - 32px);
+    gap: 12px;
+    min-height: calc(100vh - 24px);
   }
 
   .books-sidebar {
-    order: 2;
+    order: 0;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .books-sidebar__primary {
+    gap: 8px;
+  }
+
+  .books-sidebar__brand {
+    gap: 1px;
+  }
+
+  .books-sidebar__eyebrow {
+    font-size: 0.58rem;
+    letter-spacing: 0.09em;
+    color: color-mix(in srgb, var(--books-text-secondary) 72%, transparent);
+  }
+
+  .books-sidebar__brand strong {
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .books-sidebar__nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .books-sidebar__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .books-sidebar__nav a,
+  .books-sidebar__nav span {
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 0.56rem 0.78rem;
+    border-radius: 12px;
+    white-space: nowrap;
+    font-size: 0.86rem;
+  }
+
+  .books-sidebar__content {
+    gap: 10px;
   }
 
   .books-main {
@@ -445,17 +499,119 @@
   .books-toolbar {
     flex-direction: column;
     align-items: stretch;
-    padding: 16px;
+    gap: 10px;
+    padding: 8px 2px 0;
+    border-bottom: 0;
   }
 
   .books-toolbar__leading,
   .books-toolbar__trailing {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-wrap: wrap;
   }
 
+  .books-toolbar__leading {
+    gap: 8px;
+  }
+
+  .books-toolbar__title h1 {
+    font-size: clamp(1.38rem, 6.5vw, 1.8rem);
+    line-height: 1.06;
+    letter-spacing: -0.035em;
+  }
+
+  .books-toolbar__title p {
+    font-size: 0.82rem;
+  }
+
   .books-content {
-    padding: 24px 0;
+    padding: 18px 0 24px;
+  }
+
+  .books-shell--library .books-sidebar__content {
+    display: grid;
+  }
+
+  .books-shell--library .books-sidebar {
+    gap: 10px;
+    padding: 10px 12px 12px;
+    border-radius: 16px;
+  }
+
+  .books-shell--library .books-sidebar__brand {
+    padding: 0 2px 1px;
+  }
+
+  .books-shell--library .books-sidebar__eyebrow {
+    font-size: 0.56rem;
+    letter-spacing: 0.09em;
+  }
+
+  .books-shell--library .books-sidebar__brand strong {
+    font-size: 0.96rem;
+    font-weight: 620;
+  }
+
+  .books-shell--library .books-sidebar-group--library-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .books-shell--library .books-sidebar-group--library-nav h2 {
+    display: none;
+  }
+
+  .books-shell--library .books-sidebar-group__button {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    min-height: 40px;
+    padding: 0.56rem 0.72rem;
+    border-radius: 12px;
+  }
+
+  .books-shell--library .books-sidebar-group__button span:last-child {
+    display: none;
+  }
+
+  .books-shell--library .books-sidebar-group--library-status {
+    display: none;
+  }
+
+  .books-shell--reader .books-sidebar__content,
+  .books-shell--notes .books-sidebar__content {
+    display: none;
+  }
+
+  .books-shell--reader .books-sidebar,
+  .books-shell--notes .books-sidebar {
+    display: none;
+  }
+
+  .books-shell--reader .books-toolbar,
+  .books-shell--notes .books-toolbar {
+    gap: 8px;
+    padding-top: 2px;
+  }
+
+  .books-shell--reader .books-toolbar__trailing,
+  .books-shell--notes .books-toolbar__trailing {
+    justify-content: flex-start;
+  }
+
+  .books-shell--reader .books-toolbar__title h1,
+  .books-shell--notes .books-toolbar__title h1 {
+    font-size: 0.9rem;
+    line-height: 1.24;
+    font-weight: 600;
+  }
+
+  .books-shell--reader .books-toolbar__title p,
+  .books-shell--notes .books-toolbar__title p {
+    font-size: 0.74rem;
   }
 }
