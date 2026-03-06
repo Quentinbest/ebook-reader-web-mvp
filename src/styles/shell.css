@@ -205,33 +205,119 @@
 
 .books-shell--reader .books-toolbar,
 .books-shell--notes .books-toolbar {
-  gap: 18px;
+  gap: 16px;
+  padding: 0 32px;
+  border-bottom-color: color-mix(in srgb, var(--books-border) 72%, transparent);
 }
 
 .books-shell--reader .books-toolbar__leading,
 .books-shell--reader .books-toolbar__trailing,
 .books-shell--notes .books-toolbar__leading,
 .books-shell--notes .books-toolbar__trailing {
-  gap: 14px;
+  gap: 10px;
 }
 
 .books-shell--reader .books-toolbar__title h1,
 .books-shell--notes .books-toolbar__title h1 {
-  font-size: 1rem;
-  line-height: 1.35;
-  font-weight: 620;
+  font-size: 0.96rem;
+  line-height: 1.28;
+  font-weight: 610;
   letter-spacing: -0.03em;
 }
 
 .books-shell--reader .books-toolbar__title p,
 .books-shell--notes .books-toolbar__title p {
   margin-top: 2px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--books-text-secondary) 90%, transparent);
 }
 
 .books-shell--reader .books-toolbar__slot .books-button,
-.books-shell--notes .books-toolbar__slot .books-button {
-  min-height: 44px;
+.books-shell--notes .books-toolbar__slot .books-button,
+.books-shell--reader .books-toolbar__trailing .books-button,
+.books-shell--notes .books-toolbar__trailing .books-button {
+  min-height: 38px;
+  padding: 0.52rem 0.78rem;
+  border-radius: 12px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--books-text-secondary);
+}
+
+.books-shell--reader .books-toolbar__slot .books-button:hover,
+.books-shell--notes .books-toolbar__slot .books-button:hover,
+.books-shell--reader .books-toolbar__trailing .books-button:hover,
+.books-shell--notes .books-toolbar__trailing .books-button:hover {
+  border-color: color-mix(in srgb, var(--books-border) 88%, transparent);
+  background: color-mix(in srgb, var(--books-surface) 82%, transparent);
+  color: var(--books-text);
+}
+
+.books-shell--reader .books-sidebar,
+.books-shell--notes .books-sidebar {
+  gap: 18px;
+  padding: 24px 18px;
+  background: color-mix(in srgb, var(--books-background) 82%, rgba(255, 255, 255, 0.2));
+  box-shadow: none;
+}
+
+.books-shell--reader .books-sidebar__brand,
+.books-shell--notes .books-sidebar__brand {
+  gap: 3px;
+}
+
+.books-shell--reader .books-sidebar__eyebrow,
+.books-shell--notes .books-sidebar__eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+}
+
+.books-shell--reader .books-sidebar__brand strong,
+.books-shell--notes .books-sidebar__brand strong {
+  font-size: 1.24rem;
+}
+
+.books-shell--reader .books-sidebar__nav,
+.books-shell--notes .books-sidebar__nav {
+  gap: 6px;
+}
+
+.books-shell--reader .books-sidebar__nav a,
+.books-shell--reader .books-sidebar__nav span,
+.books-shell--notes .books-sidebar__nav a,
+.books-shell--notes .books-sidebar__nav span {
+  min-height: 40px;
+  padding: 0.62rem 0.82rem;
+  border-radius: 12px;
+  font-size: 0.92rem;
+}
+
+.books-shell--reader .books-sidebar__content,
+.books-shell--notes .books-sidebar__content {
+  gap: 12px;
+}
+
+.books-shell--reader .books-sidebar-group,
+.books-shell--notes .books-sidebar-group {
+  padding: 14px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--books-surface) 76%, transparent);
+}
+
+.books-shell--reader .books-sidebar-group h2,
+.books-shell--notes .books-sidebar-group h2 {
+  font-size: 0.76rem;
+}
+
+.books-shell--reader .books-sidebar-group__title,
+.books-shell--notes .books-sidebar-group__title {
+  font-size: 0.96rem;
+  line-height: 1.35;
+}
+
+.books-shell--reader .books-sidebar-group__byline,
+.books-shell--notes .books-sidebar-group__byline {
+  font-size: 0.88rem;
 }
 
 @media (max-width: 1080px) {

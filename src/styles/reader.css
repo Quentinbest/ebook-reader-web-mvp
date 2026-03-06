@@ -7,22 +7,31 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
+}
+
+.reader-toolbar-action {
+  font-size: 0.9rem;
+  font-weight: 560;
+}
+
+.reader-toolbar-action__label {
+  white-space: nowrap;
 }
 
 .reader-inline-progress {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  padding: 0 14px;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 8px 0 2px;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--reader-border) 92%, transparent);
-  background: color-mix(in srgb, var(--reader-surface) 92%, transparent);
+  border: 0;
+  background: transparent;
   color: var(--books-text-secondary);
-  font-size: 0.82rem;
-  font-weight: 650;
+  font-size: 0.78rem;
+  font-weight: 620;
   font-variant-numeric: tabular-nums;
 }
 
@@ -31,7 +40,7 @@
 }
 
 .reader-inline-progress__track {
-  width: 88px;
+  width: 72px;
   height: 4px;
   border-radius: 999px;
   overflow: hidden;
@@ -43,6 +52,11 @@
   height: 100%;
   border-radius: inherit;
   background: var(--reader-progress-fill);
+}
+
+.reader-toolbar-status {
+  display: inline-flex;
+  align-items: center;
 }
 
 .reader-workspace {
@@ -690,6 +704,32 @@
 
 .books-shell--reader .books-sidebar-group p {
   line-height: 1.45;
+}
+
+.books-sidebar-group--reader-summary {
+  gap: 7px;
+}
+
+.books-sidebar-group__meta-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--books-text-secondary);
+  font-size: 0.8rem;
+}
+
+.books-sidebar-group__locator {
+  font-size: 0.84rem;
+}
+
+.books-shell--reader .offline-badge {
+  min-height: 28px;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--books-border) 88%, transparent);
+  background: transparent;
+  color: var(--books-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 620;
 }
 
 .annotation-list p,

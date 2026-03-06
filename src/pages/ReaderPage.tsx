@@ -348,7 +348,7 @@ export default function ReaderPage(): JSX.Element {
   }
 
   const tocDisabled = book.format === "epub" ? !epubReady && !tocEntries.length : tocLoading;
-  const subtitle = `${book.author || "本地阅读"} · ${pageLayout === "single" ? "单页版式" : "双页版式"}`;
+  const subtitle = book.author || `${book.format.toUpperCase()} 文档`;
   const paneTheme = preferences.theme;
   const readerActions = [
     {
@@ -478,12 +478,12 @@ export default function ReaderPage(): JSX.Element {
             <button
               key={action.key}
               type="button"
-              className={`books-button books-button--ghost ${activePane === action.key ? "is-active" : ""}`}
+              className={`books-button books-button--ghost reader-toolbar-action ${activePane === action.key ? "is-active" : ""}`}
               data-testid={action.testId}
               onClick={action.onClick}
             >
               {action.icon}
-              {action.label}
+              <span className="reader-toolbar-action__label">{action.label}</span>
             </button>
           ))}
           <div className="reader-inline-progress" title={`阅读进度 ${Math.round(currentPercent)}%`}>
@@ -492,18 +492,26 @@ export default function ReaderPage(): JSX.Element {
               <span style={{ width: `${Math.max(0, Math.min(100, Math.round(currentPercent)))}%` }} />
             </div>
           </div>
-          <OfflineBadge />
+          <div className="reader-toolbar-status">
+            <OfflineBadge />
+          </div>
         </div>
       }
       sidebar={
         <>
-          <section className="books-sidebar-group">
+          <section className="books-sidebar-group books-sidebar-group--reader-summary">
             <h2>当前书籍</h2>
             <p className="books-sidebar-group__title">{book.title}</p>
-            <p>{book.author || "未知作者"}</p>
-            <p>{book.format.toUpperCase()} · {Math.round(currentPercent)}% 已读</p>
-            <p>{pageLayout === "single" ? "单页版式" : "双页版式"} · {annotations.length} 条批注</p>
-            <p>{currentLocator === "start" ? "从开头开始" : `当前位置：${currentLocator}`}</p>
+            <p className="books-sidebar-group__byline">{book.author || "未知作者"}</p>
+            <div className="books-sidebar-group__meta-line">
+              <span>{book.format.toUpperCase()}</span>
+              <span>{Math.round(currentPercent)}% 已读</span>
+            </div>
+            <div className="books-sidebar-group__meta-line">
+              <span>{pageLayout === "single" ? "单页版式" : "双页版式"}</span>
+              <span>{annotations.length} 条批注</span>
+            </div>
+            <p className="books-sidebar-group__locator">{currentLocator === "start" ? "从开头开始" : `当前位置：${currentLocator}`}</p>
           </section>
         </>
       }
