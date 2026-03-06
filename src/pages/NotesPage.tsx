@@ -57,15 +57,17 @@ export default function NotesPage(): JSX.Element {
       toolbarTrailing={<OfflineBadge />}
       sidebar={
         <>
-          <section className="books-sidebar-group">
-            <h2>摘要</h2>
+          <section className="books-sidebar-group books-sidebar-group--notes-summary">
+            <h2>批注工作区</h2>
             <p className="books-sidebar-group__title">{book.title}</p>
-            <p>{notes.length} 条批注</p>
-          </section>
-          <section className="books-sidebar-group books-sidebar-group--muted">
-            <h2>最近定位</h2>
-            <p>{latestLocator}</p>
-            <p>可从右侧编辑、删除，并跳回正文定位。</p>
+            <p className="books-sidebar-group__byline">{book.author || "本地阅读"}</p>
+            <div className="books-sidebar-group__meta-line">
+              <span>{notes.length} 条批注</span>
+              <span>{notes.length ? "可回跳正文" : "等待新增"}</span>
+            </div>
+            <p className="books-sidebar-group__locator">
+              {notes.length ? `最近定位：${latestLocator}` : "回到阅读器新增批注后，会在这里形成工作区。"}
+            </p>
           </section>
         </>
       }
