@@ -32,6 +32,8 @@ export default function BookCard({ book, onDelete, progressPercent = 0 }: BookCa
   const [from, to] = paletteFor(book);
   const progress = Math.max(0, Math.min(100, Math.round(progressPercent)));
   const fallbackTitle = book.title.length > 40 ? `${book.title.slice(0, 40).trim()}…` : book.title;
+  const lastOpenedLabel = formatDate(book.lastReadAt);
+  const statusLabel = progress > 0 ? `${progress}% 已读` : book.lastReadAt ? "已打开" : "未开始";
 
   return (
     <article className="book-card" data-testid="book-card">
@@ -62,16 +64,15 @@ export default function BookCard({ book, onDelete, progressPercent = 0 }: BookCa
       <div className="book-card__body">
         <div className="book-card__heading">
           <h3 title={book.title}>{book.title}</h3>
-          <p>{book.author || "未知作者"}</p>
+        </div>
+
+        <div className="book-card__meta">
+          <p className="book-card__author">{book.author || "未知作者"}</p>
+          <span className="book-card__status" title={`最近打开 ${lastOpenedLabel}`}>{statusLabel}</span>
         </div>
 
         <div className="book-card__progress" aria-label={`阅读进度 ${progress}%`}>
           <span style={{ width: `${progress}%` }} />
-        </div>
-
-        <div className="book-card__meta">
-          <span>{progress > 0 ? `${progress}%` : "未开始"}</span>
-          <span>{formatDate(book.lastReadAt)}</span>
         </div>
 
         <div className="book-card__actions">
