@@ -5,6 +5,7 @@ import { createEpubBuffer } from './epub-fixture.mjs';
 
 const baseUrl = process.env.APP_URL || 'http://127.0.0.1:4178';
 const outDir = process.env.OUT_DIR || '/Users/quentin/workspace/ebook-reader/output/playwright/demo-capture';
+const fixedLastModified = 1709702400000;
 
 async function closeLastCloseButton(page) {
   await page.getByRole('button', { name: '关闭' }).last().click();
@@ -35,7 +36,8 @@ async function main() {
     await page.locator('input[type="file"]').setInputFiles({
       name: 'mobile-pane-review.epub',
       mimeType: 'application/epub+zip',
-      buffer: epub
+      buffer: epub,
+      lastModified: fixedLastModified
     });
     await page.waitForURL(/\/reader\//, { timeout: 30000 });
     await page.getByTestId('reader-toolbar').waitFor({ timeout: 15000 });

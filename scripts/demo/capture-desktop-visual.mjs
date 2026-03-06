@@ -6,6 +6,7 @@ import { createEpubBuffer, reviewBooks } from './epub-fixture.mjs';
 const appUrl = process.env.APP_URL || 'http://127.0.0.1:4178';
 const designUrl = process.env.DESIGN_URL || 'http://127.0.0.1:4174/03-final-screens.html';
 const outDir = process.env.OUT_DIR || '/Users/quentin/workspace/ebook-reader/output/playwright/demo-capture';
+const fixedLastModified = 1709702400000;
 
 function slugify(value) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -33,7 +34,8 @@ async function main() {
         buffer: await createEpubBuffer({
           ...book,
           identifier: `urn:uuid:${index}-${slugify(book.title)}`
-        })
+        }),
+        lastModified: fixedLastModified
       }))
     );
 

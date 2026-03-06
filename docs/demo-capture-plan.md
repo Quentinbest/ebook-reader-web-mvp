@@ -75,6 +75,7 @@ The repo now includes reusable capture commands:
 
 ```bash
 cd /Users/quentin/workspace/ebook-reader
+npm run demo:serve:design
 npm run demo:capture:mobile-shell
 npm run demo:capture:mobile-panes
 npm run demo:capture:desktop-visual
@@ -90,6 +91,13 @@ Example:
 ```bash
 cd /Users/quentin/workspace/ebook-reader
 APP_URL=http://127.0.0.1:4178 OUT_DIR=/Users/quentin/workspace/ebook-reader/output/playwright/demo-capture npm run demo:capture:mobile-shell
+```
+
+For desktop visual comparison, start the frozen design server in a separate terminal first:
+
+```bash
+cd /Users/quentin/workspace/ebook-reader
+npm run demo:serve:design
 ```
 
 ## Artifact Storage Rules
