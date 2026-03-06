@@ -195,6 +195,19 @@ textarea {
   box-shadow: var(--books-shadow-sm);
 }
 
+.telemetry-notice__copy {
+  display: grid;
+  gap: 4px;
+}
+
+.telemetry-notice__copy strong {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--books-text-secondary);
+}
+
 .telemetry-notice p {
   margin: 0;
   color: var(--books-text-secondary);
@@ -211,6 +224,29 @@ textarea {
 
 .telemetry-notice input[type="checkbox"] {
   width: auto;
+}
+
+.telemetry-notice--compact {
+  align-items: center;
+  gap: 12px;
+}
+
+.telemetry-notice--compact .telemetry-notice__copy {
+  gap: 2px;
+}
+
+.telemetry-notice--compact .telemetry-notice__copy strong {
+  font-size: 0.72rem;
+}
+
+.telemetry-notice--compact p {
+  font-size: 0.82rem;
+}
+
+.telemetry-notice--compact label {
+  font-size: 0.84rem;
+  font-weight: 560;
+  color: var(--books-text-secondary);
 }
 
 @media (max-width: 900px) {

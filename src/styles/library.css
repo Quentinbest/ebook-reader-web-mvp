@@ -291,12 +291,17 @@
 }
 
 .books-library > .telemetry-notice {
-  padding: 12px 0 0;
+  justify-content: flex-end;
+  padding: 10px 0 0;
   border: 0;
-  border-top: 1px solid color-mix(in srgb, var(--books-border) 86%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--books-border) 72%, transparent);
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+}
+
+.books-library > .telemetry-notice .telemetry-notice__copy {
+  justify-items: end;
 }
 
 .books-library > .telemetry-notice p,

@@ -138,7 +138,7 @@ export default function LibraryPage(): JSX.Element {
       }
       sidebar={
         <>
-          <section className="books-sidebar-group" aria-label="书架分组">
+          <section className="books-sidebar-group books-sidebar-group--library-nav" aria-label="书架分组">
             <h2>资料库</h2>
             <button
               type="button"
@@ -165,16 +165,16 @@ export default function LibraryPage(): JSX.Element {
             >
               <TagIcon />
               标签
-              <span>占位</span>
+              <span>稍后提供</span>
             </button>
           </section>
 
-          <section className="books-sidebar-group books-sidebar-group--muted">
-            <h2>状态</h2>
+          <section className="books-sidebar-group books-sidebar-group--library-status books-sidebar-group--muted">
+            <h2>当前聚焦</h2>
             {currentBook ? (
               <>
                 <p className="books-sidebar-group__title">{currentBook.title}</p>
-                <p>{currentBookProgress}% 已读</p>
+                <p>{currentBookProgress}% 已读 · {currentBook.author || "未知作者"}</p>
               </>
             ) : (
               <p>导入一本书开始阅读。</p>
@@ -201,6 +201,7 @@ export default function LibraryPage(): JSX.Element {
             </section>
 
             <TelemetryNotice
+              variant="compact"
               value={telemetryOptIn}
               onChange={async (next) => {
                 setOptIn(next);
@@ -242,6 +243,7 @@ export default function LibraryPage(): JSX.Element {
             )}
 
             <TelemetryNotice
+              variant="compact"
               value={telemetryOptIn}
               onChange={async (next) => {
                 setOptIn(next);
