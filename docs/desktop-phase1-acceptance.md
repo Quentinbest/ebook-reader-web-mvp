@@ -55,7 +55,9 @@ Result:
 
 - Desktop phase 1 is accepted locally.
 - Remaining gaps are polish-only and are not merge blockers.
-- GitHub Actions for the current PR head show one passing and one failing `test-and-build` run; merge should wait for that CI state to be cleaned up or re-run to a single green head status.
+- GitHub Actions for the current PR head `81b7e39` are green:
+  - `pull_request` `test-and-build`: success
+  - `push` `test-and-build`: success
 
 ## Manual acceptance checklist
 
@@ -114,7 +116,7 @@ These are not merge blockers for desktop phase 1:
 
 - [x] Confirm branch target is `main`
 - [x] Copy summary from `/Users/quentin/workspace/ebook-reader/docs/desktop-phase1-pr.md`
-- [ ] Confirm CI is green
+- [x] Confirm CI is green
 - [x] Confirm local smoke is green
 - [x] Confirm helper directories are excluded from Git
 - [ ] Merge without squashing away useful milestone history unless repository policy requires squash
