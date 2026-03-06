@@ -210,6 +210,24 @@
   box-shadow: none;
 }
 
+.books-shell--library .books-sidebar__brand {
+  gap: 2px;
+  padding: 0 4px 2px;
+}
+
+.books-shell--library .books-sidebar__eyebrow {
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--books-text-secondary) 78%, transparent);
+}
+
+.books-shell--library .books-sidebar__brand strong {
+  font-size: 1.22rem;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, var(--books-text) 94%, transparent);
+}
+
 .books-shell--library .books-sidebar__nav {
   gap: 6px;
 }
