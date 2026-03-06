@@ -168,16 +168,18 @@ export default function LibraryPage(): JSX.Element {
           </section>
 
           <section className="books-sidebar-group books-sidebar-group--library-status books-sidebar-group--muted">
-            <h2>当前聚焦</h2>
+            <h2>当前书目</h2>
             {currentBook ? (
               <>
                 <p className="books-sidebar-group__title">{currentBook.title}</p>
-                <p>{currentBook.author || "未知作者"} · {currentBookProgress}% 已读</p>
+                <p className="books-sidebar-group__meta-line">
+                  <span>{currentBookProgress}% 已读</span>
+                  {query.trim() ? <span>筛选：{query}</span> : null}
+                </p>
               </>
             ) : (
-              <p>导入一本书开始阅读。</p>
+              <p className="books-sidebar-group__hint">导入一本书开始阅读。</p>
             )}
-            {query.trim() ? <p className="books-sidebar-group__hint">筛选：{query}</p> : null}
           </section>
         </>
       }

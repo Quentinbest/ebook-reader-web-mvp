@@ -240,14 +240,40 @@
 }
 
 .books-shell--library .books-sidebar-group--library-nav h2 {
-  padding: 0 4px 6px;
+  padding: 0 4px 4px;
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  color: color-mix(in srgb, var(--books-text-secondary) 78%, transparent);
 }
 
 .books-shell--library .books-sidebar-group--library-status {
-  gap: 4px;
-  padding: 6px 4px 0;
+  gap: 3px;
+  padding: 2px 4px 0;
   background: transparent;
   border-color: transparent;
+}
+
+.books-shell--library .books-sidebar-group--library-status h2 {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--books-text-secondary) 78%, transparent);
+}
+
+.books-shell--library .books-sidebar-group--library-status .books-sidebar-group__title {
+  font-size: 0.94rem;
+  line-height: 1.32;
+}
+
+.books-shell--library .books-sidebar-group--library-status .books-sidebar-group__meta-line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  color: color-mix(in srgb, var(--books-text-secondary) 92%, transparent);
+  font-size: 0.76rem;
+}
+
+.books-shell--library .books-sidebar-group--library-status .books-sidebar-group__hint {
+  font-size: 0.76rem;
 }
 
 .books-shell--library .books-sidebar-group__button {

@@ -112,7 +112,16 @@ test("toc jump works when nav href is relative to nav file", async ({ page }) =>
   await page.getByRole("button", { name: "目录" }).click();
   await page.getByRole("button", { name: "Chapter B" }).click();
   await expect(page.getByText("无法跳转到该章节")).toHaveCount(0);
-  await expect(page.frameLocator("iframe").getByRole("heading", { name: "Chapter B" })).toBeVisible();
+  await expect
+    .poll(async () => {
+      const frameHandle = await page.locator(".epub-container iframe").first().elementHandle();
+      const frame = await frameHandle?.contentFrame();
+      if (!frame) {
+        return "";
+      }
+      return (await frame.locator("h1").first().textContent().catch(() => ""))?.trim() ?? "";
+    })
+    .toBe("Chapter B");
 });
 
 test("epub supports page turning by wheel and arrow keys inside iframe", async ({ page }) => {

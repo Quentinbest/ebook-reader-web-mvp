@@ -190,7 +190,7 @@ export default function ReaderPage(): JSX.Element {
 
         const locator = requestedLocator ?? progress?.locator ?? "start";
         setCurrentLocator(locator);
-        setTargetLocator(locator);
+        setTargetLocator(locator !== "start" ? locator : undefined);
         setCurrentPercent(progress?.percent ?? 0);
         if (bookMeta.format === "pdf") {
           setCurrentHref(locator);
