@@ -10,7 +10,7 @@ Reference branch:
 
 Latest branch head at the time of this document:
 
-- `39019b8` `docs(release): add mobile phase 1 merge notes`
+- `07e7aaf` `test(e2e): stabilize mobile phase ci checks`
 
 ## Required automated checks
 
@@ -57,8 +57,11 @@ Result:
 
 - Mobile phase 1 is accepted locally.
 - Remaining gaps are polish-only.
-- PR `#2` is open: `feat(mobile): ship mobile-first shell and reading workspace refinement`
-- Merge readiness still depends on GitHub Actions being green for the current PR head.
+- PR `#2` was merged: `feat(mobile): ship mobile-first shell and reading workspace refinement`
+- GitHub Actions for the final PR head `07e7aaf` are green:
+  - `push` `test-and-build`: success
+  - `pull_request` `test-and-build`: success
+- Merge commit on `main`: `6d581df`
 
 ## Manual acceptance checklist
 
@@ -113,14 +116,14 @@ These are not merge blockers for mobile phase 1:
 
 - [x] Confirm branch target is `main`
 - [x] Copy summary from `/Users/quentin/workspace/ebook-reader/docs/mobile-phase1-pr.md`
-- [ ] Confirm CI is green for the PR head
+- [x] Confirm CI is green for the PR head
 - [x] Confirm local smoke is green
 - [x] Confirm helper directories are excluded from Git
-- [ ] Merge without flattening useful milestone history unless repository policy requires it
+- [x] Merge without flattening useful milestone history unless repository policy requires it
 
 ## Post-merge recommendation
 
 After merge, the highest-value next steps are:
-1. complete PR review and merge flow
+1. sync local cleanup and branch cleanup after merge
 2. capture final demo artifacts for both desktop and mobile
 3. return to focused `epubjs` integration debt only if logs or edge cases block release confidence
