@@ -17,16 +17,9 @@ const coverPalettes = [
 
 function formatDate(ts?: number): string {
   if (!ts) {
-    return "从未阅读";
+    return "未打开";
   }
   return new Date(ts).toLocaleDateString();
-}
-
-function humanSize(bytes: number): string {
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function paletteFor(book: BookMeta): readonly [string, string] {
@@ -78,12 +71,11 @@ export default function BookCard({ book, onDelete, progressPercent = 0 }: BookCa
 
         <div className="book-card__meta">
           <span>{progress > 0 ? `${progress}%` : "未开始"}</span>
-          <span>{humanSize(book.fileSize)}</span>
           <span>{formatDate(book.lastReadAt)}</span>
         </div>
 
         <div className="book-card__actions">
-          <Link className="book-card__action-link" to={`/notes/${book.id}`}>批注页</Link>
+          <Link className="book-card__action-link" to={`/notes/${book.id}`}>批注</Link>
           <button type="button" className="books-button books-button--danger" onClick={() => onDelete(book.id)}>
             删除
           </button>

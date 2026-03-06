@@ -186,29 +186,31 @@ export default function LibraryPage(): JSX.Element {
       contentClassName="books-library-content"
     >
       <section className="library-layout books-library">
-        <TelemetryNotice
-          value={telemetryOptIn}
-          onChange={async (next) => {
-            setOptIn(next);
-            await setTelemetryOptIn(next);
-          }}
-        />
-
         {error ? <p className="error-banner">{error}</p> : null}
 
         {!hasBooks ? (
-          <section className="books-panel books-panel--empty">
-            <div className="library-panel__header">
-              <div>
-                <h2>空书库</h2>
-                <p>从本地导入 EPUB 或 PDF 后，会在这里生成桌面书架。</p>
+          <>
+            <section className="books-panel books-panel--empty">
+              <div className="library-panel__header">
+                <div>
+                  <h2>空书库</h2>
+                  <p>从本地导入 EPUB 或 PDF 后，会在这里生成桌面书架。</p>
+                </div>
               </div>
-            </div>
-            <FileDropZone onFiles={(files) => void handleFiles(files)} isLoading={busy} />
-          </section>
+              <FileDropZone onFiles={(files) => void handleFiles(files)} isLoading={busy} />
+            </section>
+
+            <TelemetryNotice
+              value={telemetryOptIn}
+              onChange={async (next) => {
+                setOptIn(next);
+                await setTelemetryOptIn(next);
+              }}
+            />
+          </>
         ) : (
           <>
-            <section className="books-panel library-panel__header">
+            <section className="library-section-head">
               <div>
                 <h2>{currentCollectionLabel}</h2>
                 <p>{query.trim() ? `关键词“${query}”的筛选结果` : "封面优先的桌面书架，保持本地阅读进度同步。"}</p>
@@ -222,7 +224,7 @@ export default function LibraryPage(): JSX.Element {
                 <p>本轮不引入新的标签领域模型，先统一书架、阅读和批注工作流。</p>
               </section>
             ) : visibleBooks.length ? (
-              <section className="book-grid books-panel" aria-label="我的书架" data-testid="library-book-grid">
+              <section className="book-grid book-grid--shelf" aria-label="我的书架" data-testid="library-book-grid">
                 {visibleBooks.map((book) => (
                   <BookCard
                     key={book.id}
@@ -238,6 +240,14 @@ export default function LibraryPage(): JSX.Element {
                 <p>换一个关键词，或清空搜索回到完整书架。</p>
               </section>
             )}
+
+            <TelemetryNotice
+              value={telemetryOptIn}
+              onChange={async (next) => {
+                setOptIn(next);
+                await setTelemetryOptIn(next);
+              }}
+            />
           </>
         )}
       </section>

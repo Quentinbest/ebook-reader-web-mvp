@@ -52,7 +52,7 @@ export default function SearchPanel({ onSearch, onPick }: SearchPanelProps): JSX
             aria-label="关键词"
           />
         </label>
-        <button type="submit" className="books-button" disabled={loading}>
+        <button type="submit" className="books-button books-button--ghost" disabled={loading}>
           {loading ? "检索中..." : "检索"}
         </button>
       </form>
