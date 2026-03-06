@@ -143,10 +143,10 @@ test.describe("E2E smoke", () => {
     await expect(page).toHaveURL(/\/reader\//);
     await page.getByTestId("reader-action-back").click();
     await expect(page).toHaveURL(/\/library/);
-    await expect(page.getByRole("heading", { name: "书架" })).toBeVisible();
 
     const searchInput = page.getByTestId("library-search-input");
     await expect(searchInput).toBeVisible();
+    await expect(page.getByTestId("library-book-grid").locator("[data-testid='book-card']").first()).toBeVisible();
     await searchInput.fill("whale");
 
     const grid = page.getByTestId("library-book-grid");

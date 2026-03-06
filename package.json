@@ -11,7 +11,11 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts tests/e2e/toc-path-repro.spec.ts tests/e2e/pdf-page-turn.spec.ts",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "demo:serve:design": "node scripts/demo/serve-frozen-design.mjs",
+    "demo:capture:mobile-shell": "node scripts/demo/capture-mobile-shell.mjs",
+    "demo:capture:mobile-panes": "node scripts/demo/capture-mobile-panes.mjs",
+    "demo:capture:desktop-visual": "node scripts/demo/capture-desktop-visual.mjs"
   },
   "dependencies": {
     "epubjs": "^0.3.93",
