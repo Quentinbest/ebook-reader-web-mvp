@@ -7,31 +7,55 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .reader-toolbar-action {
-  font-size: 0.9rem;
-  font-weight: 560;
+  min-height: 34px;
+  gap: 0.42rem;
+  padding: 0.42rem 0.58rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 520;
+  color: color-mix(in srgb, var(--books-text-secondary) 94%, transparent);
+}
+
+.reader-toolbar-action svg {
+  width: 16px;
+  height: 16px;
 }
 
 .reader-toolbar-action__label {
   white-space: nowrap;
+  font-size: 0.77rem;
+  font-weight: 560;
+  letter-spacing: 0.01em;
+}
+
+.reader-toolbar-action:hover,
+.reader-toolbar-action:focus-visible {
+  color: var(--books-text);
+}
+
+.reader-toolbar-action.is-active {
+  color: var(--books-text);
+  border-color: color-mix(in srgb, var(--books-border) 72%, transparent);
+  background: color-mix(in srgb, var(--books-surface) 76%, transparent);
 }
 
 .reader-inline-progress {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  min-height: 36px;
-  padding: 0 8px 0 2px;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 6px 0 2px;
   border-radius: 999px;
   border: 0;
   background: transparent;
   color: var(--books-text-secondary);
-  font-size: 0.78rem;
-  font-weight: 620;
+  font-size: 0.74rem;
+  font-weight: 560;
   font-variant-numeric: tabular-nums;
 }
 
@@ -40,7 +64,7 @@
 }
 
 .reader-inline-progress__track {
-  width: 72px;
+  width: 64px;
   height: 4px;
   border-radius: 999px;
   overflow: hidden;
@@ -57,6 +81,7 @@
 .reader-toolbar-status {
   display: inline-flex;
   align-items: center;
+  min-height: 32px;
 }
 
 .reader-workspace {
@@ -723,13 +748,28 @@
 }
 
 .books-shell--reader .offline-badge {
-  min-height: 28px;
-  padding: 0.2rem 0.6rem;
-  border: 1px solid color-mix(in srgb, var(--books-border) 88%, transparent);
+  min-height: 24px;
+  padding: 0.14rem 0.44rem;
+  border: 1px solid color-mix(in srgb, var(--books-border) 68%, transparent);
   background: transparent;
-  color: var(--books-text-secondary);
-  font-size: 0.78rem;
-  font-weight: 620;
+  color: color-mix(in srgb, var(--books-text-secondary) 88%, transparent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.books-shell--reader .offline-badge.is-online {
+  border-color: color-mix(in srgb, var(--books-border) 56%, transparent);
+  color: color-mix(in srgb, var(--books-text-secondary) 72%, transparent);
+}
+
+.books-shell--reader .offline-badge.is-offline {
+  border-color: color-mix(in srgb, #8d6f1a 20%, transparent);
+  color: color-mix(in srgb, #7a6218 68%, var(--books-text-secondary));
+}
+
+.books-shell--reader .offline-badge--quiet {
+  box-shadow: none;
 }
 
 .annotation-list p,

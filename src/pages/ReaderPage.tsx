@@ -332,7 +332,12 @@ export default function ReaderPage(): JSX.Element {
 
   if (loading) {
     return (
-      <AppShell title="阅读器" subtitle="正在加载书籍..." toolbarTrailing={<OfflineBadge />} shellKind="reader">
+      <AppShell
+        title="阅读器"
+        subtitle="正在加载书籍..."
+        toolbarTrailing={<OfflineBadge variant="quiet" showOnline={false} />}
+        shellKind="reader"
+      >
         <p className="loading">加载中...</p>
       </AppShell>
     );
@@ -340,7 +345,12 @@ export default function ReaderPage(): JSX.Element {
 
   if (error || !book || !blob) {
     return (
-      <AppShell title="阅读器" subtitle="加载失败" toolbarTrailing={<OfflineBadge />} shellKind="reader">
+      <AppShell
+        title="阅读器"
+        subtitle="加载失败"
+        toolbarTrailing={<OfflineBadge variant="quiet" showOnline={false} />}
+        shellKind="reader"
+      >
         <p className="error-banner">{error ?? "未知错误"}</p>
         <button type="button" className="books-button" onClick={() => navigate("/library")}>返回书架</button>
       </AppShell>
@@ -480,6 +490,8 @@ export default function ReaderPage(): JSX.Element {
               type="button"
               className={`books-button books-button--ghost reader-toolbar-action ${activePane === action.key ? "is-active" : ""}`}
               data-testid={action.testId}
+              aria-label={action.label}
+              title={action.label}
               onClick={action.onClick}
             >
               {action.icon}
@@ -493,7 +505,7 @@ export default function ReaderPage(): JSX.Element {
             </div>
           </div>
           <div className="reader-toolbar-status">
-            <OfflineBadge />
+            <OfflineBadge variant="quiet" showOnline={false} />
           </div>
         </div>
       }
