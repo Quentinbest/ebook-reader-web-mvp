@@ -30,7 +30,7 @@ export default function FileDropZone({
       <div className="drop-zone drop-zone--compact">
         <button
           type="button"
-          className="books-button books-button--secondary"
+          className="books-button books-button--ghost drop-zone__compact-trigger"
           disabled={isLoading}
           data-testid="library-import-trigger"
           onClick={() => inputRef.current?.click()}
