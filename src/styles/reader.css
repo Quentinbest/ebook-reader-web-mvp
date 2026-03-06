@@ -420,14 +420,14 @@
   grid-template-columns: 24px minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
-  min-height: 52px;
-  padding-right: 2px;
+  min-height: 50px;
+  padding-right: 0;
   border-bottom: 1px solid color-mix(in srgb, var(--reader-border) 85%, transparent);
 }
 
 .toc-panel--content .toc-item__row {
-  grid-template-columns: 0 minmax(0, 1fr) auto;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  gap: 10px;
 }
 
 .toc-item__toggle,
@@ -449,14 +449,20 @@
 }
 
 .toc-item__link {
-  min-height: 52px;
+  min-height: 48px;
   width: 100%;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 14px;
+  display: block;
+  padding: 10px 12px 9px;
   border-radius: 14px;
   color: var(--reader-text);
   text-align: left;
+  font-size: 0.94rem;
+  line-height: 1.28;
+  font-weight: 560;
+  letter-spacing: -0.01em;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .toc-item__link:hover:not(:disabled) {
@@ -464,18 +470,19 @@
 }
 
 .toc-item__meta {
-  min-width: 48px;
-  padding-right: 4px;
+  min-width: 34px;
+  padding-right: 0;
   text-align: right;
   color: var(--reader-text-secondary);
-  font-size: 0.82rem;
+  font-size: 0.74rem;
+  white-space: nowrap;
   pointer-events: none;
 }
 
 .toc-item.is-active > .toc-item__row .toc-item__link {
-  background: color-mix(in srgb, var(--reader-progress-fill) 14%, var(--reader-surface));
+  background: color-mix(in srgb, var(--reader-progress-fill) 11%, var(--reader-surface));
   color: var(--reader-text);
-  font-weight: 700;
+  font-weight: 620;
 }
 
 .toc-item.is-near-active > .toc-item__row .toc-item__link {
