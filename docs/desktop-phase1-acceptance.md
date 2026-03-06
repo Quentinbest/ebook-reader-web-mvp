@@ -10,7 +10,7 @@ Reference branch:
 
 Latest branch head at the time of this document:
 
-- `5c92425` `test(epub): use valid xhtml fixtures`
+- `b8e3cd5` `docs(release): add desktop phase 1 merge notes`
 
 ## Required automated checks
 
@@ -30,37 +30,64 @@ Expected coverage from the current suite:
 - PDF page-turn behavior
 - single-image EPUB cover aspect ratio
 
+## Final acceptance record
+
+Acceptance was re-run on `2026-03-06 21:16:08 CST` against the local desktop build at:
+
+- `http://127.0.0.1:4178`
+
+Evidence used for final sign-off:
+
+- local automated checks:
+  - `npm run build`
+  - `npm test`
+  - `npm run test:e2e:smoke`
+- focused browser acceptance scripts:
+  - `/Users/quentin/workspace/ebook-reader/output/playwright/manual_reader_panes_acceptance.mjs`
+  - `/Users/quentin/workspace/ebook-reader/output/playwright/manual_notes_acceptance.mjs`
+- latest local visual comparison artifacts:
+  - `/Users/quentin/workspace/ebook-reader/output/playwright/desktop-visual/report.md`
+  - `/Users/quentin/workspace/ebook-reader/output/playwright/desktop-visual/app-library.png`
+  - `/Users/quentin/workspace/ebook-reader/output/playwright/desktop-visual/app-reader.png`
+  - `/Users/quentin/workspace/ebook-reader/output/playwright/desktop-visual/app-reader-toc.png`
+
+Result:
+
+- Desktop phase 1 is accepted locally.
+- Remaining gaps are polish-only and are not merge blockers.
+- GitHub Actions for the current PR head show one passing and one failing `test-and-build` run; merge should wait for that CI state to be cleaned up or re-run to a single green head status.
+
 ## Manual acceptance checklist
 
 ### Library
-- [ ] Desktop layout shows persistent left sidebar and top toolbar.
-- [ ] Shelf renders as a 4-column, cover-first bookshelf.
-- [ ] Search filters books on the same route.
-- [ ] Import action works from the compact desktop trigger.
-- [ ] At-rest book tiles do not show heavy management chrome.
+- [x] Desktop layout shows persistent left sidebar and top toolbar.
+- [x] Shelf renders as a 4-column, cover-first bookshelf.
+- [x] Search filters books on the same route.
+- [x] Import action works from the compact desktop trigger.
+- [x] At-rest book tiles do not show heavy management chrome.
 
 ### Reader
-- [ ] Opening a book routes to `/reader/:bookId`.
-- [ ] Toolbar stays visible on desktop.
-- [ ] Left/right page controls still work.
-- [ ] Reader remains visually calmer than earlier iterations.
+- [x] Opening a book routes to `/reader/:bookId`.
+- [x] Toolbar stays visible on desktop.
+- [x] Left/right page controls still work.
+- [x] Reader remains visually calmer than earlier iterations.
 
 ### TOC / Search / Settings / Annotations
-- [ ] TOC opens in the right-side utility pane.
-- [ ] TOC chapter jump works for EPUB.
-- [ ] Search opens in the right-side utility pane.
-- [ ] Settings opens in the right-side utility pane.
-- [ ] Annotation pane still supports create/delete/locate flows.
+- [x] TOC opens in the right-side utility pane.
+- [x] TOC chapter jump works for EPUB.
+- [x] Search opens in the right-side utility pane.
+- [x] Settings opens in the right-side utility pane.
+- [x] Annotation pane still supports create/delete/locate flows.
 
 ### Notes
-- [ ] `/notes/:bookId` keeps working.
-- [ ] Existing notes can be edited and deleted.
-- [ ] Locator-based return path to reading context still works.
+- [x] `/notes/:bookId` keeps working.
+- [x] Existing notes can be edited and deleted.
+- [x] Locator-based return path to reading context still works.
 
 ### Theme behavior
-- [ ] Library remains light.
-- [ ] Reader theme changes remain scoped to the reader experience.
-- [ ] `light / dark / sepia` still function.
+- [x] Library remains light.
+- [x] Reader theme changes remain scoped to the reader experience.
+- [x] `light / dark / sepia` still function.
 
 ## Visual sign-off
 
@@ -72,9 +99,9 @@ Use the latest local comparison artifacts:
 - `/Users/quentin/workspace/ebook-reader/output/playwright/desktop-visual/app-reader-toc.png`
 
 Current sign-off status:
-- `Library`: acceptable, residual gap is light polish only
-- `Reader`: acceptable, residual gap is maintenance-level polish only
-- `TOC`: acceptable, residual gap is optional cosmetic polish only
+- `Library`: accepted, residual gap is light polish only
+- `Reader`: accepted, residual gap is maintenance-level polish only
+- `TOC`: accepted, residual gap is optional cosmetic polish only
 
 ## Known residual items
 
@@ -85,11 +112,11 @@ These are not merge blockers for desktop phase 1:
 
 ## Merge checklist
 
-- [ ] Confirm branch target is `main`
-- [ ] Copy summary from `/Users/quentin/workspace/ebook-reader/docs/desktop-phase1-pr.md`
+- [x] Confirm branch target is `main`
+- [x] Copy summary from `/Users/quentin/workspace/ebook-reader/docs/desktop-phase1-pr.md`
 - [ ] Confirm CI is green
-- [ ] Confirm local smoke is green
-- [ ] Confirm helper directories are excluded from Git
+- [x] Confirm local smoke is green
+- [x] Confirm helper directories are excluded from Git
 - [ ] Merge without squashing away useful milestone history unless repository policy requires squash
 
 ## Post-merge recommendation
