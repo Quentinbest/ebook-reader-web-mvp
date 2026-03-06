@@ -115,18 +115,37 @@ test("toc jump works when nav href is relative to nav file", async ({ page }) =>
   });
 
   await expect(page).toHaveURL(/\/reader\//);
-  await page.getByRole("button", { name: "目录" }).click();
-  await page.getByRole("button", { name: "Chapter B" }).click();
+  await expect
+    .poll(
+      async () => {
+        const frameHandle = await page.locator(".epub-container iframe").first().elementHandle();
+        const frame = await frameHandle?.contentFrame();
+        if (!frame) {
+          return "";
+        }
+        return (await frame.locator("h1").first().textContent().catch(() => ""))?.trim() ?? "";
+      },
+      { timeout: 15_000 }
+    )
+    .toBe("Chapter A");
+
+  await page.getByTestId("reader-action-toc").click();
+  const chapterB = page.getByRole("button", { name: "Chapter B" });
+  await expect(chapterB).toBeVisible();
+  await chapterB.click();
   await expect(page.getByText("无法跳转到该章节")).toHaveCount(0);
   await expect
-    .poll(async () => {
-      const frameHandle = await page.locator(".epub-container iframe").first().elementHandle();
-      const frame = await frameHandle?.contentFrame();
-      if (!frame) {
-        return "";
-      }
-      return (await frame.locator("h1").first().textContent().catch(() => ""))?.trim() ?? "";
-    })
+    .poll(
+      async () => {
+        const frameHandle = await page.locator(".epub-container iframe").first().elementHandle();
+        const frame = await frameHandle?.contentFrame();
+        if (!frame) {
+          return "";
+        }
+        return (await frame.locator("h1").first().textContent().catch(() => ""))?.trim() ?? "";
+      },
+      { timeout: 15_000 }
+    )
     .toBe("Chapter B");
 });
 
