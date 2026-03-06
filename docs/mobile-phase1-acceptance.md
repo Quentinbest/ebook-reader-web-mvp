@@ -10,7 +10,7 @@ Reference branch:
 
 Latest branch head at the time of this document:
 
-- `c39ba1b` `refactor(mobile): polish shell and toolbar tone`
+- `39019b8` `docs(release): add mobile phase 1 merge notes`
 
 ## Required automated checks
 
@@ -33,7 +33,7 @@ Expected coverage from the current suite:
 
 ## Final acceptance record
 
-Acceptance was re-run on `2026-03-06 22:23:22 CST` against the local preview at:
+Acceptance was re-run on `2026-03-06 22:26:40 CST` against the local preview at:
 
 - `http://127.0.0.1:4178`
 
@@ -57,7 +57,8 @@ Result:
 
 - Mobile phase 1 is accepted locally.
 - Remaining gaps are polish-only.
-- Merge readiness still depends on branch CI being green once a PR is opened.
+- PR `#2` is open: `feat(mobile): ship mobile-first shell and reading workspace refinement`
+- Merge readiness still depends on GitHub Actions being green for the current PR head.
 
 ## Manual acceptance checklist
 
@@ -110,8 +111,8 @@ These are not merge blockers for mobile phase 1:
 
 ## Merge checklist
 
-- [ ] Confirm branch target is `main`
-- [ ] Copy summary from `/Users/quentin/workspace/ebook-reader/docs/mobile-phase1-pr.md`
+- [x] Confirm branch target is `main`
+- [x] Copy summary from `/Users/quentin/workspace/ebook-reader/docs/mobile-phase1-pr.md`
 - [ ] Confirm CI is green for the PR head
 - [x] Confirm local smoke is green
 - [x] Confirm helper directories are excluded from Git
@@ -120,6 +121,6 @@ These are not merge blockers for mobile phase 1:
 ## Post-merge recommendation
 
 After merge, the highest-value next steps are:
-1. consolidate release-prep and open the mobile PR
+1. complete PR review and merge flow
 2. capture final demo artifacts for both desktop and mobile
 3. return to focused `epubjs` integration debt only if logs or edge cases block release confidence
