@@ -1,27 +1,28 @@
 .books-notes-shell {
   display: grid;
   gap: 24px;
+  max-width: 1120px;
 }
 
 .books-notes-layout {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: 24px;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 28px;
   align-items: start;
 }
 
 .notes-locator-rail,
 .notes-editor-list {
-  padding: 24px;
-  border-radius: var(--books-radius-lg);
+  padding: 20px;
+  border-radius: 18px;
   border: 1px solid var(--books-border);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: var(--books-shadow-sm);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 40px rgba(31, 38, 52, 0.08);
 }
 
 .notes-locator-rail {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .notes-section-header {
@@ -43,16 +44,32 @@
 }
 
 .notes-locator-rail__item {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-height: 44px;
-  padding: 0.72rem 0.9rem;
+  padding: 0.82rem 0.9rem;
   border-radius: 14px;
-  background: var(--books-surface);
+  background: rgba(247, 247, 250, 0.92);
   border: 1px solid var(--books-border);
   color: var(--books-text);
   text-align: left;
+}
+
+.notes-locator-rail__item-text {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.notes-locator-rail__item-text strong {
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.notes-locator-rail__item-text small {
+  color: var(--books-text-secondary);
 }
 
 .notes-editor-list {
@@ -63,10 +80,10 @@
 .note-item {
   display: grid;
   gap: 14px;
-  padding: 18px;
+  padding: 20px;
   border-radius: 18px;
   border: 1px solid var(--books-border);
-  background: var(--books-surface);
+  background: color-mix(in srgb, var(--books-surface) 72%, #ffffff);
 }
 
 .note-item header {
@@ -74,6 +91,12 @@
   justify-content: space-between;
   gap: 12px;
   align-items: center;
+}
+
+.note-item__header-meta {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
 }
 
 .note-item header small {
@@ -91,6 +114,7 @@
 .note-actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 1080px) {

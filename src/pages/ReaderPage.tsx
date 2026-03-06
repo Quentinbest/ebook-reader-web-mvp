@@ -337,7 +337,7 @@ export default function ReaderPage(): JSX.Element {
   }
 
   const tocDisabled = book.format === "epub" ? !epubReady && !tocEntries.length : tocLoading;
-  const subtitle = `${book.author || "本地阅读"} · ${Math.round(currentPercent)}% · ${pageLayout === "single" ? "单页" : "双页"}`;
+  const subtitle = `${book.author || "本地阅读"} · ${pageLayout === "single" ? "单页版式" : "双页版式"}`;
   const paneTheme = preferences.theme;
   const readerActions = [
     {
@@ -475,7 +475,12 @@ export default function ReaderPage(): JSX.Element {
               {action.label}
             </button>
           ))}
-          <span className="reader-progress-chip">{Math.round(currentPercent)}%</span>
+          <div className="reader-inline-progress" title={`阅读进度 ${Math.round(currentPercent)}%`}>
+            <span aria-hidden>{Math.round(currentPercent)}%</span>
+            <div className="reader-inline-progress__track" aria-hidden>
+              <span style={{ width: `${Math.max(0, Math.min(100, Math.round(currentPercent)))}%` }} />
+            </div>
+          </div>
           <OfflineBadge />
         </div>
       }
@@ -488,8 +493,9 @@ export default function ReaderPage(): JSX.Element {
           </section>
           <section className="books-sidebar-group books-sidebar-group--muted">
             <h2>阅读状态</h2>
-            <p>{book.format.toUpperCase()} · {Math.round(currentPercent)}%</p>
-            <p>{annotations.length} 条批注</p>
+            <p>{book.format.toUpperCase()} · {Math.round(currentPercent)}% 已读</p>
+            <p>{pageLayout === "single" ? "单页版式" : "双页版式"} · {annotations.length} 条批注</p>
+            <p>{currentLocator === "start" ? "从开头开始" : `当前位置：${currentLocator}`}</p>
           </section>
         </>
       }

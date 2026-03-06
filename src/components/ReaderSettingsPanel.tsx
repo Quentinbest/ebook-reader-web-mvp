@@ -15,8 +15,14 @@ export default function ReaderSettingsPanel({
 }: ReaderSettingsPanelProps): JSX.Element {
   return (
     <section className="settings-panel">
+      <section className={`settings-preview settings-preview--${preferences.theme}`}>
+        <span className="settings-preview__eyebrow">预览</span>
+        <strong>Call me Ishmael.</strong>
+        <p>在不改数据与阅读引擎的前提下，优先调整桌面阅读密度、主题与版式。</p>
+      </section>
+
       <div className="settings-panel__group">
-        <div className="settings-panel__label">Theme</div>
+        <div className="settings-panel__label">主题</div>
         <div className="settings-segmented" role="group" aria-label="主题">
           {[
             ["light", "浅色"],
@@ -36,7 +42,7 @@ export default function ReaderSettingsPanel({
       </div>
 
       <div className="settings-panel__group">
-        <div className="settings-panel__label">Layout</div>
+        <div className="settings-panel__label">版式</div>
         <div className="settings-segmented" role="group" aria-label="版式">
           <button
             type="button"
@@ -57,7 +63,7 @@ export default function ReaderSettingsPanel({
 
       <div className="settings-panel__group">
         <label className="settings-field">
-          <span>Font family</span>
+          <span>字体</span>
           <select
             value={preferences.fontFamily}
             onChange={(event) =>
@@ -72,7 +78,7 @@ export default function ReaderSettingsPanel({
 
       <div className="settings-panel__group">
         <label className="settings-field">
-          <span>Font size {preferences.fontSize}px</span>
+          <span>字号 {preferences.fontSize}px</span>
           <input
             type="range"
             min={14}
@@ -85,7 +91,7 @@ export default function ReaderSettingsPanel({
 
       <div className="settings-panel__group">
         <label className="settings-field">
-          <span>Line height {preferences.lineHeight.toFixed(1)}</span>
+          <span>行距 {preferences.lineHeight.toFixed(1)}</span>
           <input
             type="range"
             min={1.3}
@@ -99,7 +105,7 @@ export default function ReaderSettingsPanel({
 
       <div className="settings-panel__group">
         <label className="settings-field">
-          <span>Page margin {preferences.pageMargin}px</span>
+          <span>页边距 {preferences.pageMargin}px</span>
           <input
             type="range"
             min={12}

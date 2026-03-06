@@ -153,7 +153,7 @@
   min-width: 0;
   display: grid;
   grid-template-rows: var(--books-toolbar-height) minmax(0, 1fr);
-  gap: 16px;
+  gap: 0;
 }
 
 .books-toolbar {
@@ -162,12 +162,9 @@
   justify-content: space-between;
   gap: 16px;
   min-height: var(--books-toolbar-height);
-  padding: 0 24px;
-  border-radius: var(--books-radius-lg);
-  border: 1px solid var(--books-border);
-  background: rgba(255, 255, 255, 0.76);
-  backdrop-filter: blur(18px);
-  box-shadow: var(--books-shadow-sm);
+  padding: 0 40px;
+  border-bottom: 1px solid var(--books-border);
+  background: transparent;
 }
 
 .books-toolbar__leading {
@@ -203,7 +200,38 @@
 
 .books-content {
   min-width: 0;
-  padding: 0 var(--books-content-padding) var(--books-content-padding);
+  padding: var(--books-content-padding) var(--books-content-padding) var(--books-content-padding);
+}
+
+.books-shell--reader .books-toolbar,
+.books-shell--notes .books-toolbar {
+  gap: 18px;
+}
+
+.books-shell--reader .books-toolbar__leading,
+.books-shell--reader .books-toolbar__trailing,
+.books-shell--notes .books-toolbar__leading,
+.books-shell--notes .books-toolbar__trailing {
+  gap: 14px;
+}
+
+.books-shell--reader .books-toolbar__title h1,
+.books-shell--notes .books-toolbar__title h1 {
+  font-size: 1rem;
+  line-height: 1.35;
+  font-weight: 620;
+  letter-spacing: -0.03em;
+}
+
+.books-shell--reader .books-toolbar__title p,
+.books-shell--notes .books-toolbar__title p {
+  margin-top: 2px;
+  font-size: 0.82rem;
+}
+
+.books-shell--reader .books-toolbar__slot .books-button,
+.books-shell--notes .books-toolbar__slot .books-button {
+  min-height: 44px;
 }
 
 @media (max-width: 1080px) {
@@ -238,6 +266,6 @@
   }
 
   .books-content {
-    padding: 0 0 24px;
+    padding: 24px 0;
   }
 }

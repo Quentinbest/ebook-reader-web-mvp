@@ -86,7 +86,10 @@ export default function NotesPage(): JSX.Element {
                 onClick={() => navigate(`/reader/${book.id}?locator=${encodeURIComponent(note.locator)}`)}
               >
                 <NoteIcon />
-                <span>{note.locator}</span>
+                <span className="notes-locator-rail__item-text">
+                  <strong>{note.locator}</strong>
+                  <small>{note.note?.trim() ? "含备注" : "仅引文"}</small>
+                </span>
               </button>
             ))}
           </div>
@@ -102,10 +105,13 @@ export default function NotesPage(): JSX.Element {
           {notes.map((item) => (
             <article key={item.id} className="note-item">
               <header>
-                <button type="button" className="books-link-button" onClick={() => navigate(`/reader/${book.id}?locator=${encodeURIComponent(item.locator)}`)}>
-                  {item.locator}
-                </button>
-                <small>{new Date(item.updatedAt).toLocaleString()}</small>
+                <div className="note-item__header-meta">
+                  <button type="button" className="books-link-button" onClick={() => navigate(`/reader/${book.id}?locator=${encodeURIComponent(item.locator)}`)}>
+                    {item.locator}
+                  </button>
+                  <small>{new Date(item.updatedAt).toLocaleString()}</small>
+                </div>
+                <span className="books-chip">{item.color}</span>
               </header>
               <blockquote>{item.quote}</blockquote>
               <label className="settings-field">

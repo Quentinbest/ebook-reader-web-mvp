@@ -20,6 +20,7 @@ export default function SearchPanel({ onSearch, onPick }: SearchPanelProps): JSX
   const [searched, setSearched] = useState(false);
 
   const hasResults = useMemo(() => results.length > 0, [results]);
+  const statusLabel = loading ? "正在检索书内内容..." : searched ? `${results.length} 条结果` : "输入关键词后开始检索";
 
   async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -47,7 +48,7 @@ export default function SearchPanel({ onSearch, onPick }: SearchPanelProps): JSX
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="输入关键词"
+            placeholder="搜索当前书籍"
             aria-label="关键词"
           />
         </label>
@@ -56,7 +57,7 @@ export default function SearchPanel({ onSearch, onPick }: SearchPanelProps): JSX
         </button>
       </form>
 
-      {loading ? <p className="loading">正在检索书内内容...</p> : null}
+      <p className="search-panel__status">{statusLabel}</p>
       {!loading && searched && !hasResults ? <p className="empty-hint">未找到相关内容。</p> : null}
 
       <ul className="search-results">
