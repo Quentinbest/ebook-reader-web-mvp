@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import { SearchIcon } from "./icons/BooksIcons";
 import type { SearchResult } from "../types/contracts";
 
 type SearchPanelProps = {
@@ -7,40 +8,62 @@ type SearchPanelProps = {
   onPick: (locator: string) => void;
 };
 
+function excerptLabel(result: SearchResult): string {
+  const normalized = result.locator.replace(/^pdf:page:/i, "第 ").replace(/^epubcfi\(.+\)$/i, "定位");
+  return normalized === result.locator ? `定位 ${result.locator}` : `${normalized} 页`;
+}
+
 export default function SearchPanel({ onSearch, onPick }: SearchPanelProps): JSX.Element {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  const hasResults = useMemo(() => results.length > 0, [results]);
 
   async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
+    if (!query.trim()) {
+      setResults([]);
+      setSearched(true);
+      return;
+    }
+
     setLoading(true);
     try {
-      setResults(await onSearch(query));
+      setResults(await onSearch(query.trim()));
+      setSearched(true);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <section className="panel">
-      <h3>书内检索</h3>
-      <form onSubmit={submit} className="search-form">
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="输入关键词"
-          aria-label="关键词"
-        />
-        <button type="submit" disabled={loading}>
+    <section className="search-panel">
+      <form onSubmit={submit} className="search-panel__form">
+        <label className="search-panel__input">
+          <SearchIcon />
+          <span className="books-visually-hidden">关键词</span>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="输入关键词"
+            aria-label="关键词"
+          />
+        </label>
+        <button type="submit" className="books-button" disabled={loading}>
           {loading ? "检索中..." : "检索"}
         </button>
       </form>
+
+      {loading ? <p className="loading">正在检索书内内容...</p> : null}
+      {!loading && searched && !hasResults ? <p className="empty-hint">未找到相关内容。</p> : null}
+
       <ul className="search-results">
         {results.map((result) => (
-          <li key={`${result.locator}_${result.excerpt.slice(0, 12)}`}>
+          <li key={`${result.locator}_${result.excerpt.slice(0, 24)}`}>
             <button type="button" onClick={() => onPick(result.locator)}>
-              <strong>{result.locator}</strong>
+              <strong>{excerptLabel(result)}</strong>
               <span>{result.excerpt}</span>
             </button>
           </li>

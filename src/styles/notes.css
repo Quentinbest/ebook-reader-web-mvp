@@ -1,56 +1,96 @@
-.books-notes-layout {
+.books-notes-shell {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 0.7rem;
+  gap: 24px;
 }
 
-.books-notes-sidebar,
-.notes-page {
-  border: 1px solid var(--books-stroke);
+.books-notes-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.notes-locator-rail,
+.notes-editor-list {
+  padding: 24px;
   border-radius: var(--books-radius-lg);
-  background: var(--books-surface);
+  border: 1px solid var(--books-border);
+  background: rgba(255, 255, 255, 0.9);
   box-shadow: var(--books-shadow-sm);
 }
 
-.books-notes-sidebar {
-  padding: 0.7rem;
+.notes-locator-rail {
   display: grid;
-  gap: 0.55rem;
-  align-content: start;
+  gap: 18px;
 }
 
-.books-notes-sidebar h3 {
+.notes-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.notes-section-header h2 {
   margin: 0;
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
-  color: var(--books-text-secondary);
+  font-size: 1.18rem;
+  letter-spacing: -0.03em;
 }
 
-.books-notes-sidebar p {
-  margin: 0;
-  color: var(--books-text-secondary);
-  font-size: 0.9rem;
+.notes-locator-rail__list {
+  display: grid;
+  gap: 10px;
 }
 
-.notes-page {
-  padding: 0.8rem;
+.notes-locator-rail__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0.72rem 0.9rem;
+  border-radius: 14px;
+  background: var(--books-surface);
+  border: 1px solid var(--books-border);
+  color: var(--books-text);
+  text-align: left;
+}
+
+.notes-editor-list {
+  display: grid;
+  gap: 18px;
 }
 
 .note-item {
-  border-radius: 12px;
-  border: 1px solid var(--books-stroke);
-  background: var(--books-surface-muted);
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--books-border);
+  background: var(--books-surface);
 }
 
-.note-item header button {
-  border: 1px solid var(--books-stroke);
-  background: var(--books-surface);
-  color: var(--books-text);
+.note-item header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.note-item header small {
+  color: var(--books-text-secondary);
 }
 
 .note-item blockquote {
-  border-left-color: color-mix(in srgb, var(--books-accent) 55%, transparent);
-  background: color-mix(in srgb, var(--books-accent) 10%, transparent);
+  margin: 0;
+  padding: 14px 16px;
+  border-left: 4px solid color-mix(in srgb, var(--books-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--books-accent) 8%, transparent);
+  border-radius: 0 14px 14px 0;
+}
+
+.note-actions {
+  display: flex;
+  gap: 10px;
 }
 
 @media (max-width: 1080px) {

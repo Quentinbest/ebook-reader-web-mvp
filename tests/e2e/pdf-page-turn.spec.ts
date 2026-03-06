@@ -81,7 +81,7 @@ test("pdf supports page turning by wheel and arrow keys", async ({ page }) => {
   });
 
   await expect(page).toHaveURL(/\/reader\//);
-  await expect(page.getByRole("heading", { name: "阅读器" })).toBeVisible();
+  await expect(page.getByTestId("reader-toolbar")).toBeVisible();
   await expect(page.getByText("正在渲染 PDF...")).toHaveCount(0);
 
   const pageIndicator = page.locator(".pdf-page-indicator");

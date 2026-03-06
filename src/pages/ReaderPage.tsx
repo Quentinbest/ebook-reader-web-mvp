@@ -6,7 +6,8 @@ import OfflineBadge from "../components/OfflineBadge";
 import ReaderSettingsPanel from "../components/ReaderSettingsPanel";
 import SearchPanel from "../components/SearchPanel";
 import TocPanel from "../components/TocPanel";
-import { NoteIcon, SearchIcon, SlidersIcon } from "../components/icons/BooksIcons";
+import UtilityPaneHost from "../components/UtilityPaneHost";
+import { AaIcon, ChevronLeftIcon, ChevronRightIcon, NoteIcon, SearchIcon, SlidersIcon } from "../components/icons/BooksIcons";
 import {
   deleteAnnotation,
   getAnnotations,
@@ -36,7 +37,8 @@ import { DEFAULT_READER_PREFERENCES, TOC_CACHE_VERSION } from "../types/contract
 
 const EpubViewport = lazy(() => import("../components/EpubViewport"));
 const PdfViewport = lazy(() => import("../components/PdfViewport"));
-type ReaderTool = "settings" | "search" | "annotation" | "layout";
+
+type ReaderPaneKind = "toc" | "search" | "settings" | "annotations" | null;
 type PageLayoutMode = "single" | "multi";
 
 export default function ReaderPage(): JSX.Element {
@@ -56,15 +58,13 @@ export default function ReaderPage(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [tocOpen, setTocOpen] = useState(false);
   const [tocEntries, setTocEntries] = useState<TocItem[]>([]);
   const [tocLoading, setTocLoading] = useState(false);
   const [tocError, setTocError] = useState<string | null>(null);
   const [tocNeedsCache, setTocNeedsCache] = useState(false);
   const [epubReady, setEpubReady] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const [toolMenuOpen, setToolMenuOpen] = useState(false);
-  const [activeTool, setActiveTool] = useState<ReaderTool | null>(null);
+  const [activePane, setActivePane] = useState<ReaderPaneKind>(null);
   const [pageLayout, setPageLayout] = useState<PageLayoutMode>(() => {
     const raw = window.localStorage.getItem("reader_page_layout");
     return raw === "multi" ? "multi" : "single";
@@ -72,7 +72,6 @@ export default function ReaderPage(): JSX.Element {
   const [isDesktop, setIsDesktop] = useState(() => window.matchMedia("(min-width: 1081px)").matches);
 
   const noticeTimerRef = useRef<number | null>(null);
-
   const requestedLocator = useMemo(() => searchParams.get("locator") ?? undefined, [searchParams]);
 
   const showNotice = useCallback((message: string) => {
@@ -130,21 +129,17 @@ export default function ReaderPage(): JSX.Element {
 
       if (event.key.toLowerCase() === "t") {
         event.preventDefault();
-        setTocOpen((prev) => !prev);
+        setActivePane((prev) => (prev === "toc" ? null : "toc"));
         return;
       }
 
       if (event.key === "Escape") {
-        setTocOpen(false);
-        setToolMenuOpen(false);
-        setActiveTool(null);
+        setActivePane(null);
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
   useEffect(() => {
@@ -153,9 +148,7 @@ export default function ReaderPage(): JSX.Element {
     async function load(): Promise<void> {
       setLoading(true);
       setError(null);
-      setTocOpen(false);
-      setToolMenuOpen(false);
-      setActiveTool(null);
+      setActivePane(null);
       setTocError(null);
       setCurrentHref(undefined);
 
@@ -298,9 +291,37 @@ export default function ReaderPage(): JSX.Element {
     await setReaderPreferences(next);
   }
 
+  function togglePane(next: Exclude<ReaderPaneKind, null>): void {
+    setActivePane((prev) => (prev === next ? null : next));
+  }
+
+  function triggerPageTurn(direction: "prev" | "next"): void {
+    const key = direction === "next" ? "ArrowDown" : "ArrowUp";
+    window.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+  }
+
+  function navigateToLocator(locator: string): void {
+    setTargetLocator(locator);
+    setCurrentHref(locator);
+    setActivePane(null);
+  }
+
+  const handleTocNavigate = (href: string): void => {
+    if (book?.format === "epub" && !epubReady) {
+      showNotice("正在加载…");
+      return;
+    }
+    if (book?.format === "pdf" && !/^pdf:page:\d+$/i.test(href)) {
+      showNotice("无法跳转到该章节");
+      return;
+    }
+
+    navigateToLocator(href);
+  };
+
   if (loading) {
     return (
-      <AppShell title="阅读器" subtitle="正在加载书籍..." rightSlot={<OfflineBadge />}>
+      <AppShell title="阅读器" subtitle="正在加载书籍..." toolbarTrailing={<OfflineBadge />} shellKind="reader">
         <p className="loading">加载中...</p>
       </AppShell>
     );
@@ -308,69 +329,57 @@ export default function ReaderPage(): JSX.Element {
 
   if (error || !book || !blob) {
     return (
-      <AppShell title="阅读器" subtitle="加载失败" rightSlot={<OfflineBadge />}>
+      <AppShell title="阅读器" subtitle="加载失败" toolbarTrailing={<OfflineBadge />} shellKind="reader">
         <p className="error-banner">{error ?? "未知错误"}</p>
-        <button type="button" onClick={() => navigate("/library")}>
-          返回书架
-        </button>
+        <button type="button" className="books-button" onClick={() => navigate("/library")}>返回书架</button>
       </AppShell>
     );
   }
 
-  const subtitle = `${book.title} · ${Math.round(currentPercent)}%`;
-  const tocDisabled = book.format === "epub" ? !epubReady : tocLoading;
-
-  const handleTocNavigate = (href: string): void => {
-    if (book.format === "epub" && !epubReady) {
-      showNotice("正在加载…");
-      return;
+  const tocDisabled = book.format === "epub" ? !epubReady && !tocEntries.length : tocLoading;
+  const subtitle = `${book.author || "本地阅读"} · ${Math.round(currentPercent)}% · ${pageLayout === "single" ? "单页" : "双页"}`;
+  const paneTheme = preferences.theme;
+  const readerActions = [
+    {
+      key: "toc",
+      label: "目录",
+      icon: <SlidersIcon />,
+      testId: "reader-action-toc",
+      onClick: () => togglePane("toc")
+    },
+    {
+      key: "search",
+      label: "检索",
+      icon: <SearchIcon />,
+      testId: "reader-action-search",
+      onClick: () => togglePane("search")
+    },
+    {
+      key: "settings",
+      label: "显示",
+      icon: <AaIcon />,
+      testId: "reader-action-settings",
+      onClick: () => togglePane("settings")
+    },
+    {
+      key: "annotations",
+      label: "批注",
+      icon: <NoteIcon />,
+      testId: "reader-action-annotations",
+      onClick: () => togglePane("annotations")
     }
-    if (book.format === "pdf" && !/^pdf:page:\d+$/i.test(href)) {
-      showNotice("无法跳转到该章节");
-      return;
-    }
+  ] as const;
 
-    setTargetLocator(href);
-    setCurrentHref(href);
-    if (!isDesktop) {
-      setTocOpen(false);
-    }
-  };
-
-  return (
-    <AppShell
-      title="阅读器"
-      subtitle={subtitle}
-      toolbar={
-        <div className="books-reader-topbar__group">
-          <button type="button" className="books-chip books-icon-label" onClick={() => setActiveTool("search")}>
-            <SearchIcon />
-            检索
-          </button>
-          <button type="button" className="books-chip books-icon-label" onClick={() => setActiveTool("settings")}>
-            <SlidersIcon />
-            显示
-          </button>
-          <button type="button" className="books-chip books-icon-label" onClick={() => setActiveTool("annotation")}>
-            <NoteIcon />
-            批注
-          </button>
-        </div>
-      }
-      sidebar={
-        isDesktop ? (
-          <section className="books-reader-side">
-            <button
-              type="button"
-              className="books-reader-side__toggle"
-              aria-pressed={tocOpen}
-              onClick={() => setTocOpen((prev) => !prev)}
-            >
-              目录
-            </button>
+  const paneConfig =
+    activePane === "toc"
+      ? {
+          title: "目录",
+          width: 360 as const,
+          headerActions: tocDisabled ? <span className="books-chip">加载中</span> : null,
+          content: (
             <TocPanel
-              mode="embedded"
-              open={tocOpen}
+              open
+              mode="content"
               bookTitle={book.title}
               bookAuthor={book.author}
               bookCoverUrl={book.coverUrl}
@@ -379,253 +388,248 @@ export default function ReaderPage(): JSX.Element {
               loading={tocLoading}
               error={tocError}
               disabled={tocDisabled}
-              onClose={() => setTocOpen(false)}
+              onClose={() => setActivePane(null)}
               onNavigate={handleTocNavigate}
             />
-          </section>
-        ) : undefined
+          )
+        }
+      : activePane === "search"
+        ? {
+            title: "书内检索",
+            width: 420 as const,
+            headerActions: null,
+            content: (
+              <SearchPanel
+                onSearch={runSearch}
+                onPick={(locator) => {
+                  navigateToLocator(locator);
+                }}
+              />
+            )
+          }
+        : activePane === "settings"
+          ? {
+              title: "显示",
+              width: 360 as const,
+              headerActions: null,
+              content: (
+                <ReaderSettingsPanel
+                  preferences={preferences}
+                  pageLayout={pageLayout}
+                  onChange={(next) => void onPreferencesChange(next)}
+                  onPageLayoutChange={setPageLayout}
+                />
+              )
+            }
+          : activePane === "annotations"
+            ? {
+                title: "批注",
+                width: 420 as const,
+                headerActions: (
+                  <Link className="books-link-button" to={`/notes/${book.id}`}>
+                    打开批注页
+                  </Link>
+                ),
+                content: (
+                  <AnnotationPanel
+                    currentLocator={currentLocator}
+                    annotations={annotations}
+                    onCreate={createAnnotation}
+                    onDelete={async (id) => {
+                      await deleteAnnotation(id);
+                      await refreshAnnotations();
+                    }}
+                    onLocate={(locator) => navigateToLocator(locator)}
+                  />
+                )
+              }
+            : null;
+
+  return (
+    <AppShell
+      title={book.title}
+      subtitle={subtitle}
+      shellKind="reader"
+      toolbarLeading={
+        <button
+          type="button"
+          className="books-button books-button--ghost"
+          data-testid="reader-action-back"
+          onClick={() => navigate("/library")}
+        >
+          <ChevronLeftIcon />
+          返回书架
+        </button>
       }
-      rightSlot={
-        <div className="reader-top-actions">
+      toolbarTrailing={
+        <div className="reader-toolbar-actions" data-testid="reader-toolbar">
+          {readerActions.map((action) => (
+            <button
+              key={action.key}
+              type="button"
+              className={`books-button books-button--ghost ${activePane === action.key ? "is-active" : ""}`}
+              data-testid={action.testId}
+              onClick={action.onClick}
+            >
+              {action.icon}
+              {action.label}
+            </button>
+          ))}
+          <span className="reader-progress-chip">{Math.round(currentPercent)}%</span>
           <OfflineBadge />
-          <Link to={`/notes/${book.id}`}>批注页</Link>
         </div>
+      }
+      sidebar={
+        <>
+          <section className="books-sidebar-group">
+            <h2>当前书籍</h2>
+            <p className="books-sidebar-group__title">{book.title}</p>
+            <p>{book.author || "未知作者"}</p>
+          </section>
+          <section className="books-sidebar-group books-sidebar-group--muted">
+            <h2>阅读状态</h2>
+            <p>{book.format.toUpperCase()} · {Math.round(currentPercent)}%</p>
+            <p>{annotations.length} 条批注</p>
+          </section>
+        </>
       }
       contentClassName="books-reader-shell"
     >
-      {!isDesktop ? (
-        <button
-          type="button"
-          className="toc-side-trigger"
-          aria-pressed={tocOpen}
-          onClick={() => setTocOpen((prev) => !prev)}
-        >
-          目录
-        </button>
-      ) : null}
+      <div className={`reader-workspace ${isDesktop && activePane ? "has-pane" : ""}`.trim()}>
+        <section className={`reader-page theme-${preferences.theme}`}>
+          {isDesktop ? (
+            <>
+              <button
+                type="button"
+                className="reader-edge-hit reader-edge-hit--left"
+                aria-label="上一页"
+                onClick={() => triggerPageTurn("prev")}
+              />
+              <button
+                type="button"
+                className="reader-edge-hit reader-edge-hit--right"
+                aria-label="下一页"
+                onClick={() => triggerPageTurn("next")}
+              />
+              <button
+                type="button"
+                className="reader-page-arrow reader-page-arrow--left"
+                data-testid="reader-page-arrow-left"
+                aria-label="上一页"
+                onClick={() => triggerPageTurn("prev")}
+              >
+                <ChevronLeftIcon />
+              </button>
+              <button
+                type="button"
+                className="reader-page-arrow reader-page-arrow--right"
+                data-testid="reader-page-arrow-right"
+                aria-label="下一页"
+                onClick={() => triggerPageTurn("next")}
+              >
+                <ChevronRightIcon />
+              </button>
+            </>
+          ) : null}
 
-      <div className={`reader-page theme-${preferences.theme} books-reader-pane`}>
-        <div className="books-reader-topbar">
-          <div className="books-reader-topbar__group">
-            <span className="books-chip">{book.format.toUpperCase()}</span>
-            <span className="books-chip">{Math.round(currentPercent)}%</span>
-          </div>
-          <div className="books-reader-topbar__group">
-            <span className="books-chip">{pageLayout === "single" ? "单页" : "双页"}</span>
-          </div>
-        </div>
+          <section className={`reader-main reader-main--${pageLayout}`}>
+            <Suspense fallback={<p className="loading">阅读器加载中...</p>}>
+              {book.format === "epub" ? (
+                <EpubViewport
+                  blob={blob}
+                  preferences={preferences}
+                  layoutMode={pageLayout}
+                  targetLocator={targetLocator}
+                  onLocationChange={({ locator, percent, href }) => {
+                    setCurrentLocator(locator);
+                    setCurrentPercent(percent);
+                    if (href) {
+                      setCurrentHref(href);
+                    }
+                  }}
+                  onTocLoaded={(entries) => {
+                    setTocEntries(entries);
+                    setTocLoading(false);
+                    setTocError(null);
 
-        <section className={`reader-main reader-main--${pageLayout}`}>
-          <Suspense fallback={<p className="loading">阅读器加载中...</p>}>
-            {book.format === "epub" ? (
-              <EpubViewport
-                blob={blob}
-                preferences={preferences}
-                layoutMode={pageLayout}
-                targetLocator={targetLocator}
-                onLocationChange={({ locator, percent, href }) => {
-                  setCurrentLocator(locator);
-                  setCurrentPercent(percent);
-                  if (href) {
-                    setCurrentHref(href);
-                  }
-                }}
-                onTocLoaded={(entries) => {
-                  setTocEntries(entries);
-                  setTocLoading(false);
-                  setTocError(null);
-
-                  if (tocNeedsCache) {
-                    setTocNeedsCache(false);
-                    void putBookToc({
-                      bookId: book.id,
-                      tocVersion: TOC_CACHE_VERSION,
-                      entries,
-                      updatedAt: Date.now()
-                    });
-                  }
-                }}
-                onTocError={(message) => {
-                  setTocLoading(false);
-                  setTocError((prev) => (tocEntries.length ? prev : message));
-                  if (!tocEntries.length) {
+                    if (tocNeedsCache) {
+                      setTocNeedsCache(false);
+                      void putBookToc({
+                        bookId: book.id,
+                        tocVersion: TOC_CACHE_VERSION,
+                        entries,
+                        updatedAt: Date.now()
+                      });
+                    }
+                  }}
+                  onTocError={(message) => {
+                    setTocLoading(false);
+                    setTocError((prev) => (tocEntries.length ? prev : message));
+                    if (!tocEntries.length) {
+                      showNotice(message);
+                    }
+                  }}
+                  onNavigationError={showNotice}
+                  onReadyChange={setEpubReady}
+                />
+              ) : (
+                <PdfViewport
+                  blob={blob}
+                  preferences={preferences}
+                  layoutMode={pageLayout}
+                  pageCount={pageCount}
+                  targetLocator={targetLocator}
+                  onLocationChange={({ locator, percent }) => {
+                    setCurrentLocator(locator);
+                    setCurrentPercent(percent);
+                    setCurrentHref(locator);
+                  }}
+                  onTocLoaded={(entries) => {
+                    setTocEntries(entries);
+                    setTocLoading(false);
+                    setTocError(null);
+                  }}
+                  onTocError={(message) => {
+                    setTocLoading(false);
+                    setTocError(message);
                     showNotice(message);
-                  }
-                }}
-                onNavigationError={showNotice}
-                onReadyChange={setEpubReady}
-              />
-            ) : (
-              <PdfViewport
-                blob={blob}
-                preferences={preferences}
-                layoutMode={pageLayout}
-                pageCount={pageCount}
-                targetLocator={targetLocator}
-                onLocationChange={({ locator, percent }) => {
-                  setCurrentLocator(locator);
-                  setCurrentPercent(percent);
-                  setCurrentHref(locator);
-                }}
-                onTocLoaded={(entries) => {
-                  setTocEntries(entries);
-                  setTocLoading(false);
-                  setTocError(null);
-                }}
-                onTocError={(message) => {
-                  setTocLoading(false);
-                  setTocError(message);
-                  showNotice(message);
-                }}
-                onNavigationError={showNotice}
-              />
-            )}
-          </Suspense>
+                  }}
+                  onNavigationError={showNotice}
+                />
+              )}
+            </Suspense>
+          </section>
         </section>
-      </div>
 
-      <div className="reader-tool-fab">
-        {toolMenuOpen ? (
-          <div className="reader-tool-fab__menu" role="menu" aria-label="阅读工具菜单">
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setActiveTool("settings");
-                setToolMenuOpen(false);
-              }}
-            >
-              阅读设置
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setActiveTool("search");
-                setToolMenuOpen(false);
-              }}
-            >
-              书内检索
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setActiveTool("annotation");
-                setToolMenuOpen(false);
-              }}
-            >
-              批注
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setActiveTool("layout");
-                setToolMenuOpen(false);
-              }}
-            >
-              页面布局
-            </button>
-          </div>
+        {isDesktop && paneConfig ? (
+          <UtilityPaneHost
+            open
+            title={paneConfig.title}
+            width={paneConfig.width}
+            theme={paneTheme}
+            headerActions={paneConfig.headerActions}
+            onClose={() => setActivePane(null)}
+          >
+            {paneConfig.content}
+          </UtilityPaneHost>
         ) : null}
-        <button
-          type="button"
-          className="reader-tool-fab__trigger"
-          aria-expanded={toolMenuOpen}
-          onClick={() => setToolMenuOpen((prev) => !prev)}
-        >
-          功能
-        </button>
       </div>
 
-      {activeTool ? (
-        <div className="reader-tool-overlay" onClick={() => setActiveTool(null)}>
-          <aside className="reader-tool-drawer" onClick={(event) => event.stopPropagation()}>
-            <header className="reader-tool-drawer__header">
-              <h3>
-                {activeTool === "settings"
-                  ? "阅读设置"
-                  : activeTool === "search"
-                    ? "书内检索"
-                    : activeTool === "annotation"
-                      ? "批注"
-                      : "页面布局"}
-              </h3>
-              <button type="button" onClick={() => setActiveTool(null)}>
-                关闭
+      {!isDesktop && paneConfig ? (
+        <div className="reader-mobile-panel-wrap">
+          <section className={`reader-mobile-panel theme-${preferences.theme}`}>
+            <header className="reader-mobile-panel__header">
+              <div className="reader-mobile-panel__title">
+                <h3>{paneConfig.title}</h3>
+                {paneConfig.headerActions}
+              </div>
+              <button type="button" className="books-button books-button--ghost" aria-label="关闭" onClick={() => setActivePane(null)}>
+                ×
               </button>
             </header>
-            <div className="reader-tool-drawer__content">
-              {activeTool === "settings" ? (
-                <ReaderSettingsPanel preferences={preferences} onChange={(next) => void onPreferencesChange(next)} />
-              ) : null}
-              {activeTool === "search" ? (
-                <SearchPanel
-                  onSearch={runSearch}
-                  onPick={(locator) => {
-                    setTargetLocator(locator);
-                    setCurrentLocator(locator);
-                    setActiveTool(null);
-                  }}
-                />
-              ) : null}
-              {activeTool === "annotation" ? (
-                <AnnotationPanel
-                  currentLocator={currentLocator}
-                  annotations={annotations}
-                  onCreate={createAnnotation}
-                  onLocate={(locator) => {
-                    setTargetLocator(locator);
-                    setActiveTool(null);
-                  }}
-                  onDelete={async (id) => {
-                    await deleteAnnotation(id);
-                    await refreshAnnotations();
-                  }}
-                />
-              ) : null}
-              {activeTool === "layout" ? (
-                <section className="layout-panel">
-                  <p className="layout-panel__hint">选择阅读布局模式</p>
-                  <div className="layout-panel__actions">
-                    <button
-                      type="button"
-                      className={pageLayout === "single" ? "is-active" : undefined}
-                      onClick={() => setPageLayout("single")}
-                    >
-                      单页阅读
-                    </button>
-                    <button
-                      type="button"
-                      className={pageLayout === "multi" ? "is-active" : undefined}
-                      onClick={() => setPageLayout("multi")}
-                    >
-                      多页阅读
-                    </button>
-                  </div>
-                </section>
-              ) : null}
-            </div>
-          </aside>
+            <div className="reader-mobile-panel__body">{paneConfig.content}</div>
+          </section>
         </div>
-      ) : null}
-
-      {!isDesktop ? (
-        <TocPanel
-          open={tocOpen}
-          mode="drawer"
-          bookTitle={book.title}
-          bookAuthor={book.author}
-          bookCoverUrl={book.coverUrl}
-          items={tocEntries}
-          currentHref={currentHref}
-          loading={tocLoading}
-          error={tocError}
-          disabled={book.format === "epub" ? !epubReady : tocLoading}
-          onClose={() => setTocOpen(false)}
-          onNavigate={handleTocNavigate}
-        />
       ) : null}
 
       {notice ? <div className="reader-toast">{notice}</div> : null}

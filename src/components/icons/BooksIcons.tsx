@@ -71,3 +71,49 @@ export function NoteIcon(props: IconProps): JSX.Element {
     </BaseIcon>
   );
 }
+
+export function ChevronLeftIcon(props: IconProps): JSX.Element {
+  return (
+    <BaseIcon {...props}>
+      <path d="m15 18-6-6 6-6" />
+    </BaseIcon>
+  );
+}
+
+export function ChevronRightIcon(props: IconProps): JSX.Element {
+  return (
+    <BaseIcon {...props}>
+      <path d="m9 6 6 6-6 6" />
+    </BaseIcon>
+  );
+}
+
+export function CloseIcon(props: IconProps): JSX.Element {
+  return (
+    <BaseIcon {...props}>
+      <path d="M6 6 18 18" />
+      <path d="M18 6 6 18" />
+    </BaseIcon>
+  );
+}
+
+export function ImportIcon(props: IconProps): JSX.Element {
+  return (
+    <BaseIcon {...props}>
+      <path d="M12 4v11" />
+      <path d="m8 8 4-4 4 4" />
+      <path d="M5 16v3h14v-3" />
+    </BaseIcon>
+  );
+}
+
+export function AaIcon(props: IconProps): JSX.Element {
+  return (
+    <BaseIcon {...props}>
+      <path d="M4 18 9 6l5 12" />
+      <path d="M6 14h6" />
+      <path d="M15 18h5" />
+      <path d="M17.5 9v9" />
+    </BaseIcon>
+  );
+}

@@ -1,7 +1,17 @@
 import { expect, test } from "@playwright/test";
 import JSZip from "jszip";
 
-async function createEpubBuffer(): Promise<Buffer> {
+async function createEpubBuffer({
+  title = "Smoke Book",
+  identifier = "urn:uuid:smoke-book",
+  chapterTitle = "冒烟章节",
+  paragraph = "这是用于端到端测试的 EPUB 内容。"
+}: {
+  title?: string;
+  identifier?: string;
+  chapterTitle?: string;
+  paragraph?: string;
+} = {}): Promise<Buffer> {
   const zip = new JSZip();
 
   zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
@@ -20,8 +30,8 @@ async function createEpubBuffer(): Promise<Buffer> {
     `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" version="3.0">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:identifier id="bookid">urn:uuid:smoke-book</dc:identifier>
-    <dc:title>Smoke Book</dc:title>
+    <dc:identifier id="bookid">${identifier}</dc:identifier>
+    <dc:title>${title}</dc:title>
     <dc:creator>QA Bot</dc:creator>
     <meta property="dcterms:modified">2026-02-16T00:00:00Z</meta>
   </metadata>
@@ -52,10 +62,10 @@ async function createEpubBuffer(): Promise<Buffer> {
     "OEBPS/chapter1.xhtml",
     `<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <head><title>Chapter 1</title></head>
+  <head><title>${chapterTitle}</title></head>
   <body>
-    <h1>冒烟章节</h1>
-    <p>这是用于端到端测试的 EPUB 内容。</p>
+    <h1>${chapterTitle}</h1>
+    <p>${paragraph}</p>
   </body>
 </html>`
   );
@@ -68,7 +78,7 @@ test.describe("E2E smoke", () => {
     const epubBuffer = await createEpubBuffer();
 
     await page.goto("/library");
-    await expect(page.getByRole("heading", { name: "Ebook Reader" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "书架" })).toBeVisible();
 
     await page.locator('input[type="file"]').setInputFiles({
       name: "smoke.epub",
@@ -77,16 +87,14 @@ test.describe("E2E smoke", () => {
     });
 
     await expect(page).toHaveURL(/\/reader\//);
-    await expect(page.getByRole("heading", { name: "阅读器" })).toBeVisible();
+    await expect(page.getByTestId("reader-toolbar")).toBeVisible();
 
-    await page.getByRole("button", { name: "目录" }).click();
+    await page.getByTestId("reader-action-toc").click();
     await expect(page.getByRole("heading", { name: "目录" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Chapter 1" })).toBeVisible();
     await page.getByRole("button", { name: "Chapter 1" }).click();
-    await expect(page.getByRole("heading", { name: "目录" })).toBeVisible();
 
-    await page.getByRole("button", { name: "功能" }).click();
-    await page.getByRole("menuitem", { name: "批注" }).click();
+    await page.getByTestId("reader-action-annotations").click();
     await page.getByLabel("引文").fill("冒烟批注引文");
     await page.getByLabel("备注").first().fill("冒烟备注");
     await page.getByRole("button", { name: "新增批注" }).click();
@@ -94,16 +102,54 @@ test.describe("E2E smoke", () => {
     await expect(page.locator(".annotation-list li p")).toHaveText("冒烟批注引文");
 
     await page.reload();
-    await page.getByRole("button", { name: "功能" }).click();
-    await page.getByRole("menuitem", { name: "批注" }).click();
+    await page.getByTestId("reader-action-annotations").click();
     await expect(page.locator(".annotation-list li")).toHaveCount(1);
     await expect(page.locator(".annotation-list li p")).toHaveText("冒烟批注引文");
-    await page.getByRole("button", { name: "关闭" }).click();
+    await page.getByRole("link", { name: "打开批注页" }).click();
 
-    await page.getByRole("link", { name: "批注页" }).click();
     await expect(page).toHaveURL(/\/notes\//);
     await expect(page.getByText("冒烟批注引文")).toBeVisible();
     await expect(page.getByRole("textbox", { name: "备注" }).first()).toHaveValue("冒烟备注");
+  });
+
+  test("desktop library search filters imported books", async ({ page }) => {
+    const whaleBook = await createEpubBuffer({
+      title: "Whale Atlas",
+      identifier: "urn:uuid:whale-atlas",
+      chapterTitle: "Whale Chapter",
+      paragraph: "A reading sample about a whale."
+    });
+    const mountainBook = await createEpubBuffer({
+      title: "Mountain Atlas",
+      identifier: "urn:uuid:mountain-atlas",
+      chapterTitle: "Mountain Chapter",
+      paragraph: "A reading sample about a mountain."
+    });
+
+    await page.goto("/library");
+    await page.locator('input[type="file"]').setInputFiles([
+      {
+        name: "whale.epub",
+        mimeType: "application/epub+zip",
+        buffer: whaleBook
+      },
+      {
+        name: "mountain.epub",
+        mimeType: "application/epub+zip",
+        buffer: mountainBook
+      }
+    ]);
+
+    await expect(page).toHaveURL(/\/reader\//);
+    await page.getByTestId("reader-action-back").click();
+    await expect(page).toHaveURL(/\/library/);
+
+    const searchInput = page.getByTestId("library-search-input");
+    await searchInput.fill("whale");
+
+    await expect(page.getByText("Whale Atlas")).toBeVisible();
+    await expect(page.getByText("Mountain Atlas")).toHaveCount(0);
+    await expect(page.getByTestId("library-book-grid").locator("[data-testid='book-card']")).toHaveCount(1);
   });
 
   test("shows error for unsupported file format", async ({ page }) => {

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import AppShell from "../components/AppShell";
-import { NoteIcon, SearchIcon } from "../components/icons/BooksIcons";
+import { ChevronLeftIcon, NoteIcon } from "../components/icons/BooksIcons";
 import OfflineBadge from "../components/OfflineBadge";
 import { deleteAnnotation, getAnnotations, getBook, putAnnotation } from "../lib/db";
 import type { Annotation, BookMeta } from "../types/contracts";
@@ -17,16 +17,18 @@ export default function NotesPage(): JSX.Element {
   async function refresh(): Promise<void> {
     const [bookMeta, annotations] = await Promise.all([getBook(bookId), getAnnotations(bookId)]);
     setBook(bookMeta);
-    setNotes(annotations);
+    setNotes(annotations.sort((a, b) => b.updatedAt - a.updatedAt));
   }
 
   useEffect(() => {
     void refresh().finally(() => setLoading(false));
   }, [bookId]);
 
+  const latestLocator = useMemo(() => notes[0]?.locator ?? "暂无定位", [notes]);
+
   if (loading) {
     return (
-      <AppShell title="批注" subtitle="加载中..." rightSlot={<OfflineBadge />}>
+      <AppShell title="批注管理" subtitle="加载中..." shellKind="notes" toolbarTrailing={<OfflineBadge />}>
         <p className="loading">加载中...</p>
       </AppShell>
     );
@@ -34,9 +36,9 @@ export default function NotesPage(): JSX.Element {
 
   if (!book) {
     return (
-      <AppShell title="批注" subtitle="书籍不存在" rightSlot={<OfflineBadge />}>
+      <AppShell title="批注管理" subtitle="书籍不存在" shellKind="notes" toolbarTrailing={<OfflineBadge />}>
         <p className="error-banner">该书不存在，可能已被删除。</p>
-        <button type="button" onClick={() => navigate("/library")}>返回书架</button>
+        <button type="button" className="books-button" onClick={() => navigate("/library")}>返回书架</button>
       </AppShell>
     );
   }
@@ -45,59 +47,71 @@ export default function NotesPage(): JSX.Element {
     <AppShell
       title="批注管理"
       subtitle={book.title}
-      toolbar={
-        <span className="books-chip books-icon-label">
-          <SearchIcon />
-          批注检索（占位）
-        </span>
+      shellKind="notes"
+      toolbarLeading={
+        <button type="button" className="books-button books-button--ghost" onClick={() => navigate(`/reader/${book.id}`)}>
+          <ChevronLeftIcon />
+          返回阅读器
+        </button>
       }
+      toolbarTrailing={<OfflineBadge />}
       sidebar={
-        <section className="books-notes-sidebar">
-          <h3>批注摘要</h3>
-          <p className="books-icon-label">
-            <NoteIcon />
-            共 {notes.length} 条批注
-          </p>
-          <p>可在右侧编辑、删除，并跳回原文。</p>
-        </section>
+        <>
+          <section className="books-sidebar-group">
+            <h2>摘要</h2>
+            <p className="books-sidebar-group__title">{book.title}</p>
+            <p>{notes.length} 条批注</p>
+          </section>
+          <section className="books-sidebar-group books-sidebar-group--muted">
+            <h2>最近定位</h2>
+            <p>{latestLocator}</p>
+            <p>可从右侧编辑、删除，并跳回正文定位。</p>
+          </section>
+        </>
       }
-      rightSlot={
-        <div className="reader-top-actions">
-          <OfflineBadge />
-          <Link to={`/reader/${book.id}`}>回到阅读器</Link>
-        </div>
-      }
+      contentClassName="books-notes-shell"
     >
       <div className="books-notes-layout">
-        <section className="books-notes-sidebar">
-          <h3>定位目录</h3>
-          {notes.slice(0, 12).map((note) => (
-            <button
-              key={note.id}
-              type="button"
-              className="books-collection-btn"
-              onClick={() => navigate(`/reader/${book.id}?locator=${encodeURIComponent(note.locator)}`)}
-            >
-              <NoteIcon />
-              {note.locator}
-            </button>
-          ))}
-          {!notes.length ? <p className="empty-hint">暂无批注</p> : null}
+        <section className="notes-locator-rail" data-testid="notes-locator-rail">
+          <header className="notes-section-header">
+            <h2>定位目录</h2>
+            <span className="books-chip">{notes.length} 条</span>
+          </header>
+          <div className="notes-locator-rail__list">
+            {notes.map((note) => (
+              <button
+                key={note.id}
+                type="button"
+                className="notes-locator-rail__item"
+                onClick={() => navigate(`/reader/${book.id}?locator=${encodeURIComponent(note.locator)}`)}
+              >
+                <NoteIcon />
+                <span>{note.locator}</span>
+              </button>
+            ))}
+          </div>
+          {!notes.length ? <p className="empty-hint">暂无批注。</p> : null}
         </section>
 
-        <section className="notes-page">
+        <section className="notes-editor-list">
+          <header className="notes-section-header">
+            <h2>批注内容</h2>
+            <span className="books-chip">双击定位回正文</span>
+          </header>
+
           {notes.map((item) => (
             <article key={item.id} className="note-item">
               <header>
-                <button type="button" onClick={() => navigate(`/reader/${book.id}?locator=${encodeURIComponent(item.locator)}`)}>
+                <button type="button" className="books-link-button" onClick={() => navigate(`/reader/${book.id}?locator=${encodeURIComponent(item.locator)}`)}>
                   {item.locator}
                 </button>
                 <small>{new Date(item.updatedAt).toLocaleString()}</small>
               </header>
               <blockquote>{item.quote}</blockquote>
-              <label>
-                备注
+              <label className="settings-field">
+                <span>备注</span>
                 <textarea
+                  aria-label="备注"
                   value={item.note ?? ""}
                   onChange={(event) => {
                     const next = event.target.value;
@@ -110,6 +124,7 @@ export default function NotesPage(): JSX.Element {
               <div className="note-actions">
                 <button
                   type="button"
+                  className="books-button"
                   onClick={async () => {
                     const latest = notes.find((entry) => entry.id === item.id);
                     if (!latest) {
@@ -123,6 +138,7 @@ export default function NotesPage(): JSX.Element {
                 </button>
                 <button
                   type="button"
+                  className="books-button books-button--danger"
                   onClick={async () => {
                     await deleteAnnotation(item.id);
                     await refresh();
@@ -133,6 +149,7 @@ export default function NotesPage(): JSX.Element {
               </div>
             </article>
           ))}
+
           {!notes.length ? <p className="empty-hint">暂无批注。回到阅读器新增批注后会展示在这里。</p> : null}
         </section>
       </div>

@@ -1,117 +1,228 @@
-.books-shell {
-  max-width: 1600px;
-  margin: 0 auto;
+.app-shell.books-shell {
   min-height: 100vh;
-  padding: 0.75rem;
+  padding: 24px;
 }
 
-.books-toolbar {
+.books-layout {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.65rem 1rem;
-  border-radius: var(--books-radius-md);
-  border: 1px solid var(--books-stroke);
-  background: var(--books-elevated);
-  backdrop-filter: var(--books-blur);
-  box-shadow: var(--books-shadow-sm);
-}
-
-.books-traffic-lights {
-  display: inline-flex;
-  gap: 0.38rem;
-}
-
-.books-traffic-lights span {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.books-traffic-lights span:nth-child(1) {
-  background: #ff5f57;
-}
-
-.books-traffic-lights span:nth-child(2) {
-  background: #febc2e;
-}
-
-.books-traffic-lights span:nth-child(3) {
-  background: #28c840;
-}
-
-.books-toolbar__title h1 {
-  margin: 0;
-  font-size: clamp(1.28rem, 1.9vw, 1.85rem);
-  font-weight: 650;
-  letter-spacing: -0.012em;
-  color: var(--books-text);
-}
-
-.books-toolbar__title p {
-  margin: 0.2rem 0 0;
-  color: var(--books-text-secondary);
-  font-size: 0.96rem;
-}
-
-.books-toolbar__actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.books-workspace {
-  margin-top: 0.7rem;
-  display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  gap: 0.7rem;
+  grid-template-columns: var(--books-sidebar-width) minmax(0, 1fr);
+  gap: 24px;
+  min-height: calc(100vh - 48px);
 }
 
 .books-sidebar {
-  border: 1px solid var(--books-stroke);
-  background: var(--books-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px 20px;
   border-radius: var(--books-radius-lg);
-  padding: 0.75rem;
+  border: 1px solid var(--books-border);
+  background: color-mix(in srgb, var(--books-background) 88%, rgba(255, 255, 255, 0.35));
   box-shadow: var(--books-shadow-sm);
-  min-height: calc(100vh - 108px);
+}
+
+.books-sidebar__brand {
+  display: grid;
+  gap: 4px;
+}
+
+.books-sidebar__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--books-text-secondary);
+}
+
+.books-sidebar__brand strong {
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+}
+
+.books-sidebar__nav {
+  display: grid;
+  gap: 10px;
+}
+
+.books-sidebar__nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.72rem 0.9rem;
+  border-radius: 14px;
+  color: var(--books-text-secondary);
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
+.books-sidebar__nav a.is-active {
+  background: var(--books-accent-soft);
+  border-color: color-mix(in srgb, var(--books-accent) 28%, transparent);
+  color: color-mix(in srgb, var(--books-accent) 82%, var(--books-text));
+}
+
+.books-sidebar__content {
+  display: grid;
+  gap: 16px;
+}
+
+.books-sidebar-group {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--books-surface);
+  border: 1px solid var(--books-border);
+}
+
+.books-sidebar-group h2 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--books-text-secondary);
+}
+
+.books-sidebar-group p {
+  margin: 0;
+  color: var(--books-text-secondary);
+}
+
+.books-sidebar-group__title {
+  color: var(--books-text) !important;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.books-sidebar-group__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.72rem 0.9rem;
+  border-radius: 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--books-text);
+  cursor: pointer;
+}
+
+.books-sidebar-group__button svg {
+  flex: 0 0 auto;
+}
+
+.books-sidebar-group__button span:last-child {
+  margin-left: auto;
+  color: var(--books-text-secondary);
+  font-size: 0.86rem;
+}
+
+.books-sidebar-group__button:hover {
+  background: #ffffff;
+  border-color: var(--books-border);
+}
+
+.books-sidebar-group__button.is-active {
+  background: var(--books-accent-soft);
+  border-color: color-mix(in srgb, var(--books-accent) 28%, transparent);
+}
+
+.books-sidebar-group--muted {
+  background: transparent;
 }
 
 .books-main {
   min-width: 0;
+  display: grid;
+  grid-template-rows: var(--books-toolbar-height) minmax(0, 1fr);
+  gap: 16px;
 }
 
-.books-nav {
-  margin: 0;
-  display: inline-flex;
-  border-radius: 999px;
-  border: 1px solid var(--books-stroke);
-  background: var(--books-surface);
+.books-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: var(--books-toolbar-height);
+  padding: 0 24px;
+  border-radius: var(--books-radius-lg);
+  border: 1px solid var(--books-border);
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(18px);
   box-shadow: var(--books-shadow-sm);
 }
 
-.books-nav a {
-  color: var(--books-text-secondary);
-  font-weight: 600;
+.books-toolbar__leading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
 }
 
-.books-nav a.is-active {
-  background: var(--books-accent-soft);
-  color: color-mix(in srgb, var(--books-accent) 80%, var(--books-text));
+.books-toolbar__title {
+  min-width: 0;
+}
+
+.books-toolbar__title h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 2vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.books-toolbar__title p {
+  margin: 2px 0 0;
+  color: var(--books-text-secondary);
+  font-size: 0.95rem;
+}
+
+.books-toolbar__slot,
+.books-toolbar__trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .books-content {
-  margin-top: 0.7rem;
+  min-width: 0;
+  padding: 0 var(--books-content-padding) var(--books-content-padding);
 }
 
 @media (max-width: 1080px) {
-  .books-workspace {
+  .app-shell.books-shell {
+    padding: 16px;
+  }
+
+  .books-layout {
     grid-template-columns: minmax(0, 1fr);
+    min-height: calc(100vh - 32px);
   }
 
   .books-sidebar {
-    min-height: auto;
     order: 2;
+  }
+
+  .books-main {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .books-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+  }
+
+  .books-toolbar__leading,
+  .books-toolbar__trailing {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .books-content {
+    padding: 0 0 24px;
   }
 }
