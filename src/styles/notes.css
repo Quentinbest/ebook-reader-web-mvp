@@ -1,0 +1,156 @@
+.books-notes-shell {
+  display: grid;
+  gap: 20px;
+  max-width: 1088px;
+}
+
+.books-notes-layout {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.notes-locator-rail,
+.notes-editor-list {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--books-border);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 14px 30px rgba(31, 38, 52, 0.06);
+}
+
+.notes-locator-rail {
+  display: grid;
+  gap: 12px;
+}
+
+.notes-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.notes-section-header h2 {
+  margin: 0;
+  font-size: 1.08rem;
+  letter-spacing: -0.03em;
+}
+
+.notes-locator-rail__list {
+  display: grid;
+  gap: 0;
+}
+
+.notes-locator-rail__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0.82rem 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--books-border) 85%, transparent);
+  color: var(--books-text);
+  text-align: left;
+}
+
+.notes-locator-rail__item:last-child {
+  border-bottom: 0;
+}
+
+.notes-locator-rail__item-text {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.notes-locator-rail__item-text strong {
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.notes-locator-rail__item-text small {
+  color: var(--books-text-secondary);
+}
+
+.notes-editor-list {
+  display: grid;
+  gap: 16px;
+}
+
+.note-item {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--books-border);
+  background: color-mix(in srgb, var(--books-surface) 76%, #ffffff);
+}
+
+.note-item header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.note-item__header-meta {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.note-item header small {
+  color: var(--books-text-secondary);
+}
+
+.note-item blockquote {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 4px solid color-mix(in srgb, var(--books-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--books-accent) 8%, transparent);
+  border-radius: 0 14px 14px 0;
+}
+
+.note-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.books-shell--notes .books-sidebar-group--notes-summary {
+  gap: 7px;
+}
+
+.books-shell--notes .books-sidebar-group__meta-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--books-text-secondary);
+  font-size: 0.8rem;
+}
+
+.books-shell--notes .books-sidebar-group__locator {
+  font-size: 0.84rem;
+}
+
+.books-shell--notes .offline-badge {
+  min-height: 28px;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--books-border) 88%, transparent);
+  background: transparent;
+  color: var(--books-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 620;
+}
+
+@media (max-width: 1080px) {
+  .books-notes-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

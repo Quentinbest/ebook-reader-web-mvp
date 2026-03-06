@@ -1,22 +1,46 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppShell from "../components/AppShell";
 import BookCard from "../components/BookCard";
 import FileDropZone from "../components/FileDropZone";
+import { ClockIcon, LibraryIcon, SearchIcon, TagIcon } from "../components/icons/BooksIcons";
 import OfflineBadge from "../components/OfflineBadge";
 import TelemetryNotice from "../components/TelemetryNotice";
-import { deleteBook, getBooks, getTelemetryOptIn, setTelemetryOptIn } from "../lib/db";
+import { deleteBook, getBooks, getReadingProgress, getTelemetryOptIn, setTelemetryOptIn } from "../lib/db";
 import type { BookMeta } from "../types/contracts";
+
+type CollectionKey = "library" | "recent" | "tags";
+
+function matchesBook(book: BookMeta, query: string): boolean {
+  const keyword = query.trim().toLowerCase();
+  if (!keyword) {
+    return true;
+  }
+
+  return [book.title, book.author ?? "", book.format]
+    .join(" ")
+    .toLowerCase()
+    .includes(keyword);
+}
 
 export default function LibraryPage(): JSX.Element {
   const navigate = useNavigate();
   const [books, setBooks] = useState<BookMeta[]>([]);
+  const [progressByBook, setProgressByBook] = useState<Record<string, number>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [telemetryOptIn, setOptIn] = useState(true);
+  const [collection, setCollection] = useState<CollectionKey>("library");
+  const [query, setQuery] = useState("");
 
   async function refresh(): Promise<void> {
-    setBooks(await getBooks());
+    const nextBooks = await getBooks();
+    setBooks(nextBooks);
+
+    const progressEntries = await Promise.all(
+      nextBooks.map(async (book) => [book.id, (await getReadingProgress(book.id))?.percent ?? 0] as const)
+    );
+    setProgressByBook(Object.fromEntries(progressEntries));
   }
 
   useEffect(() => {
@@ -55,31 +79,179 @@ export default function LibraryPage(): JSX.Element {
     await refresh();
   }
 
+  const sortedBooks = useMemo(
+    () =>
+      [...books].sort((a, b) => {
+        const left = a.lastReadAt ?? a.updatedAt ?? a.createdAt;
+        const right = b.lastReadAt ?? b.updatedAt ?? b.createdAt;
+        return right - left;
+      }),
+    [books]
+  );
+
+  const recentBooks = useMemo(
+    () => sortedBooks.filter((book) => Boolean(book.lastReadAt)).sort((a, b) => (b.lastReadAt ?? 0) - (a.lastReadAt ?? 0)),
+    [sortedBooks]
+  );
+
+  const collectionBooks = useMemo(() => {
+    if (collection === "recent") {
+      return recentBooks;
+    }
+    if (collection === "tags") {
+      return [];
+    }
+    return sortedBooks;
+  }, [collection, recentBooks, sortedBooks]);
+
+  const visibleBooks = useMemo(() => collectionBooks.filter((book) => matchesBook(book, query)), [collectionBooks, query]);
+  const hasBooks = books.length > 0;
+  const resultLabel = query.trim() ? `${visibleBooks.length} 条结果` : `${collectionBooks.length} 本书`;
+  const currentCollectionLabel = collection === "library" ? "书库" : collection === "recent" ? "最近阅读" : "标签";
+  const currentBook = recentBooks[0] ?? sortedBooks[0] ?? null;
+  const currentBookProgress = currentBook ? Math.round(progressByBook[currentBook.id] ?? 0) : 0;
+
   return (
     <AppShell
-      title="Ebook Reader"
-      subtitle="Web 优先 · 本地离线阅读 MVP"
-      rightSlot={<OfflineBadge />}
+      title="书架"
+      subtitle="本地离线阅读"
+      shellKind="library"
+      toolbarTrailing={
+        <div className="library-toolbar-actions">
+          <label className="library-search" aria-label="搜索书籍">
+            <SearchIcon />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="搜索书名、作者或格式"
+              data-testid="library-search-input"
+            />
+            {query ? (
+              <button type="button" className="library-search__clear" onClick={() => setQuery("")}>
+                清除
+              </button>
+            ) : null}
+          </label>
+          {hasBooks ? <FileDropZone onFiles={(files) => void handleFiles(files)} isLoading={busy} variant="compact" /> : null}
+          <OfflineBadge variant="quiet" />
+        </div>
+      }
+      sidebar={
+        <>
+          <section className="books-sidebar-group books-sidebar-group--library-nav" aria-label="书架分组">
+            <h2>资料库</h2>
+            <button
+              type="button"
+              className={`books-sidebar-group__button ${collection === "library" ? "is-active" : ""}`}
+              onClick={() => setCollection("library")}
+            >
+              <LibraryIcon />
+              书库
+            </button>
+            <button
+              type="button"
+              className={`books-sidebar-group__button ${collection === "recent" ? "is-active" : ""}`}
+              onClick={() => setCollection("recent")}
+            >
+              <ClockIcon />
+              最近阅读
+            </button>
+            <button
+              type="button"
+              className={`books-sidebar-group__button ${collection === "tags" ? "is-active" : ""}`}
+              onClick={() => setCollection("tags")}
+            >
+              <TagIcon />
+              标签
+              <span className="books-sidebar-group__hint">稍后提供</span>
+            </button>
+          </section>
+
+          <section className="books-sidebar-group books-sidebar-group--library-status books-sidebar-group--muted">
+            <h2>当前书目</h2>
+            {currentBook ? (
+              <>
+                <p className="books-sidebar-group__title">{currentBook.title}</p>
+                <p className="books-sidebar-group__meta-line">
+                  <span>{currentBookProgress}% 已读</span>
+                  {query.trim() ? <span>筛选：{query}</span> : null}
+                </p>
+              </>
+            ) : (
+              <p className="books-sidebar-group__hint">导入一本书开始阅读。</p>
+            )}
+          </section>
+        </>
+      }
+      contentClassName="books-library-content"
     >
-      <section className="library-layout">
-        <TelemetryNotice
-          value={telemetryOptIn}
-          onChange={async (next) => {
-            setOptIn(next);
-            await setTelemetryOptIn(next);
-          }}
-        />
-
-        <FileDropZone onFiles={(files) => void handleFiles(files)} isLoading={busy} />
-
+      <section className="library-layout books-library">
         {error ? <p className="error-banner">{error}</p> : null}
 
-        <section className="book-grid" aria-label="我的书架">
-          {books.map((book) => (
-            <BookCard key={book.id} book={book} onDelete={(id) => void handleDelete(id)} />
-          ))}
-          {!books.length ? <p className="empty-hint">暂无书籍，先导入一本 EPUB 或 PDF 开始阅读。</p> : null}
-        </section>
+        {!hasBooks ? (
+          <>
+            <section className="books-panel books-panel--empty">
+              <div className="library-panel__header">
+                <div>
+                  <h2>空书库</h2>
+                  <p>从本地导入 EPUB 或 PDF 后，会在这里生成桌面书架。</p>
+                </div>
+              </div>
+              <FileDropZone onFiles={(files) => void handleFiles(files)} isLoading={busy} />
+            </section>
+
+            <TelemetryNotice
+              variant="compact"
+              value={telemetryOptIn}
+              onChange={async (next) => {
+                setOptIn(next);
+                await setTelemetryOptIn(next);
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <section className="library-section-head">
+              <div>
+                <h2>{currentCollectionLabel}</h2>
+                <p>{query.trim() ? `关键词“${query}”的筛选结果` : "封面优先的桌面书架，保持本地阅读进度同步。"}</p>
+              </div>
+              <span className="books-chip">{resultLabel}</span>
+            </section>
+
+            {collection === "tags" ? (
+              <section className="books-panel books-panel--placeholder">
+                <h3>标签视图暂未开放</h3>
+                <p>本轮不引入新的标签领域模型，先统一书架、阅读和批注工作流。</p>
+              </section>
+            ) : visibleBooks.length ? (
+              <section className="book-grid book-grid--shelf" aria-label="我的书架" data-testid="library-book-grid">
+                {visibleBooks.map((book) => (
+                  <BookCard
+                    key={book.id}
+                    book={book}
+                    progressPercent={progressByBook[book.id] ?? 0}
+                    onDelete={(id) => void handleDelete(id)}
+                  />
+                ))}
+              </section>
+            ) : (
+              <section className="books-panel books-panel--placeholder">
+                <h3>没有匹配结果</h3>
+                <p>换一个关键词，或清空搜索回到完整书架。</p>
+              </section>
+            )}
+
+            <TelemetryNotice
+              variant="compact"
+              value={telemetryOptIn}
+              onChange={async (next) => {
+                setOptIn(next);
+                await setTelemetryOptIn(next);
+              }}
+            />
+          </>
+        )}
       </section>
     </AppShell>
   );

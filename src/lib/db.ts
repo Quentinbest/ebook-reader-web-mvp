@@ -2,6 +2,7 @@ import type {
   Annotation,
   BookFileRecord,
   BookMeta,
+  BookTocCache,
   BookTextIndex,
   ReaderPreferences,
   ReadingProgress,
@@ -10,7 +11,7 @@ import type {
 import { DEFAULT_READER_PREFERENCES } from "../types/contracts";
 
 const DB_NAME = "ebook_reader_mvp";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 type PreferenceRecord = {
   key: "reader_preferences" | "telemetry_opt_in";
@@ -47,6 +48,9 @@ function openDatabase(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains("indexes")) {
         db.createObjectStore("indexes", { keyPath: "bookId" });
+      }
+      if (!db.objectStoreNames.contains("toc")) {
+        db.createObjectStore("toc", { keyPath: "bookId" });
       }
       if (!db.objectStoreNames.contains("telemetry")) {
         db.createObjectStore("telemetry", { keyPath: "ts" });
@@ -113,11 +117,12 @@ export async function getBookBlob(bookId: string): Promise<Blob | null> {
 }
 
 export async function deleteBook(bookId: string): Promise<void> {
-  return tx(["books", "files", "progress", "annotations", "indexes"], "readwrite", async (transaction) => {
+  return tx(["books", "files", "progress", "annotations", "indexes", "toc"], "readwrite", async (transaction) => {
     transaction.objectStore("books").delete(bookId);
     transaction.objectStore("files").delete(bookId);
     transaction.objectStore("progress").delete(bookId);
     transaction.objectStore("indexes").delete(bookId);
+    transaction.objectStore("toc").delete(bookId);
 
     const annotationStore = transaction.objectStore("annotations");
     const index = annotationStore.index("bookId");
@@ -277,5 +282,22 @@ export async function getBookIndex(bookId: string): Promise<BookTextIndex | null
   return tx("indexes", "readonly", async (transaction) => {
     const result = await toPromise(transaction.objectStore("indexes").get(bookId));
     return (result as BookTextIndex | undefined) ?? null;
+  });
+}
+
+export async function putBookToc(cache: BookTocCache): Promise<void> {
+  return tx("toc", "readwrite", async (transaction) => {
+    transaction.objectStore("toc").put(cache);
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  });
+}
+
+export async function getBookToc(bookId: string): Promise<BookTocCache | null> {
+  return tx("toc", "readonly", async (transaction) => {
+    const result = await toPromise(transaction.objectStore("toc").get(bookId));
+    return (result as BookTocCache | undefined) ?? null;
   });
 }

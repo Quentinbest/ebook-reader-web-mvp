@@ -19,6 +19,21 @@ export interface ReadingProgress {
   updatedAt: number;
 }
 
+export interface TocItem {
+  id: string;
+  title: string;
+  href: string;
+  level: number;
+  children?: TocItem[];
+}
+
+export interface BookTocCache {
+  bookId: string;
+  tocVersion: number;
+  entries: TocItem[];
+  updatedAt: number;
+}
+
 export type AnnotationColor = "yellow" | "green" | "blue" | "pink";
 
 export interface Annotation {
@@ -82,3 +97,5 @@ export const DEFAULT_READER_PREFERENCES: ReaderPreferences = {
   pageMargin: 24,
   theme: "light"
 };
+
+export const TOC_CACHE_VERSION = 1;
