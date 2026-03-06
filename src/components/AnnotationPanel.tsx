@@ -44,6 +44,11 @@ export default function AnnotationPanel({
 
   return (
     <section className="annotation-panel">
+      <div className="annotation-panel__summary">
+        <span className="books-chip">{annotations.length} 条批注</span>
+        <span className="annotation-panel__summary-locator">当前位置：{currentLocator}</span>
+      </div>
+
       <form className="annotation-form" onSubmit={handleCreate}>
         <label className="settings-field">
           <span>当前位置</span>
@@ -79,12 +84,15 @@ export default function AnnotationPanel({
         {annotations.map((annotation) => (
           <li key={annotation.id}>
             <div className="annotation-list__top">
-              <button type="button" className="books-link-button" onClick={() => onLocate(annotation.locator)}>
-                {annotation.locator}
-              </button>
+              <div className="annotation-list__meta">
+                <button type="button" className="books-link-button" onClick={() => onLocate(annotation.locator)}>
+                  {annotation.locator}
+                </button>
+                <small>{annotation.color}</small>
+              </div>
               <span className={`dot dot-${annotation.color}`} aria-hidden />
             </div>
-            <p>{annotation.quote}</p>
+            <p className="annotation-list__quote">{annotation.quote}</p>
             {annotation.note ? <small>{annotation.note}</small> : null}
             <div className="annotation-actions">
               <button type="button" className="books-button books-button--ghost" onClick={() => onLocate(annotation.locator)}>

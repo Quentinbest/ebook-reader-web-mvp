@@ -148,7 +148,7 @@ test.describe("E2E smoke", () => {
     await searchInput.fill("whale");
 
     const grid = page.getByTestId("library-book-grid");
-    await expect(grid.getByText("Whale Atlas")).toBeVisible();
+    await expect(grid.getByRole("heading", { name: "Whale Atlas" })).toBeVisible();
     await expect(grid.getByText("Mountain Atlas")).toHaveCount(0);
     await expect(grid.locator("[data-testid='book-card']")).toHaveCount(1);
   });

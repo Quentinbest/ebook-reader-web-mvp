@@ -365,7 +365,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 4px;
+  gap: 0;
 }
 
 .toc-item__row {
@@ -374,7 +374,8 @@
   align-items: center;
   gap: 8px;
   min-height: 52px;
-  border-radius: 12px;
+  padding-right: 2px;
+  border-bottom: 1px solid color-mix(in srgb, var(--reader-border) 85%, transparent);
 }
 
 .toc-item__toggle,
@@ -395,8 +396,8 @@
   width: 100%;
   display: inline-flex;
   align-items: center;
-  padding: 0 12px;
-  border-radius: 12px;
+  padding: 0 14px;
+  border-radius: 14px;
   color: var(--reader-text);
   text-align: left;
 }
@@ -590,6 +591,22 @@
   gap: 12px;
 }
 
+.annotation-panel__summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  color: var(--reader-text-secondary);
+  font-size: 0.82rem;
+}
+
+.annotation-panel__summary-locator {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .annotation-list li {
   display: grid;
   gap: 10px;
@@ -609,6 +626,25 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+}
+
+.annotation-list__meta {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.annotation-list__meta small,
+.annotation-list small {
+  color: var(--reader-text-secondary);
+}
+
+.annotation-list__quote {
+  margin: 0;
+  padding: 14px 16px;
+  border-left: 4px solid color-mix(in srgb, var(--reader-progress-fill) 55%, transparent);
+  background: color-mix(in srgb, var(--reader-progress-fill) 8%, transparent);
+  border-radius: 0 14px 14px 0;
 }
 
 .annotation-list p,

@@ -38,6 +38,7 @@ function paletteFor(book: BookMeta): readonly [string, string] {
 export default function BookCard({ book, onDelete, progressPercent = 0 }: BookCardProps): JSX.Element {
   const [from, to] = paletteFor(book);
   const progress = Math.max(0, Math.min(100, Math.round(progressPercent)));
+  const fallbackTitle = book.title.length > 40 ? `${book.title.slice(0, 40).trim()}…` : book.title;
 
   return (
     <article className="book-card" data-testid="book-card">
@@ -54,7 +55,15 @@ export default function BookCard({ book, onDelete, progressPercent = 0 }: BookCa
               }
         }
       >
-        {book.coverUrl ? <img src={book.coverUrl} alt="" loading="lazy" /> : <span>{book.format.toUpperCase()}</span>}
+        {book.coverUrl ? (
+          <img src={book.coverUrl} alt="" loading="lazy" />
+        ) : (
+          <span className="book-card__cover-fallback" aria-hidden>
+            <small>{book.author || "Local edition"}</small>
+            <strong>{fallbackTitle}</strong>
+            <em>{book.format.toUpperCase()}</em>
+          </span>
+        )}
       </Link>
 
       <div className="book-card__body">
@@ -74,7 +83,7 @@ export default function BookCard({ book, onDelete, progressPercent = 0 }: BookCa
         </div>
 
         <div className="book-card__actions">
-          <Link to={`/notes/${book.id}`}>批注页</Link>
+          <Link className="book-card__action-link" to={`/notes/${book.id}`}>批注页</Link>
           <button type="button" className="books-button books-button--danger" onClick={() => onDelete(book.id)}>
             删除
           </button>
