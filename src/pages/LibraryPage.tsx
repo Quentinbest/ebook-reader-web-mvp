@@ -133,7 +133,7 @@ export default function LibraryPage(): JSX.Element {
             ) : null}
           </label>
           {hasBooks ? <FileDropZone onFiles={(files) => void handleFiles(files)} isLoading={busy} variant="compact" /> : null}
-          <OfflineBadge />
+          <OfflineBadge variant="quiet" />
         </div>
       }
       sidebar={
@@ -147,7 +147,6 @@ export default function LibraryPage(): JSX.Element {
             >
               <LibraryIcon />
               书库
-              <span>{sortedBooks.length}</span>
             </button>
             <button
               type="button"
@@ -156,7 +155,6 @@ export default function LibraryPage(): JSX.Element {
             >
               <ClockIcon />
               最近阅读
-              <span>{recentBooks.length}</span>
             </button>
             <button
               type="button"
@@ -165,7 +163,7 @@ export default function LibraryPage(): JSX.Element {
             >
               <TagIcon />
               标签
-              <span>稍后提供</span>
+              <span className="books-sidebar-group__hint">稍后提供</span>
             </button>
           </section>
 
@@ -174,12 +172,12 @@ export default function LibraryPage(): JSX.Element {
             {currentBook ? (
               <>
                 <p className="books-sidebar-group__title">{currentBook.title}</p>
-                <p>{currentBookProgress}% 已读 · {currentBook.author || "未知作者"}</p>
+                <p>{currentBook.author || "未知作者"} · {currentBookProgress}% 已读</p>
               </>
             ) : (
               <p>导入一本书开始阅读。</p>
             )}
-            <p>{query.trim() ? `搜索关键词：${query}` : hasBooks ? `当前视图：${currentCollectionLabel}` : "支持 EPUB / PDF，本地离线可读。"}</p>
+            {query.trim() ? <p className="books-sidebar-group__hint">筛选：{query}</p> : null}
           </section>
         </>
       }

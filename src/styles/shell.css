@@ -244,14 +244,23 @@
 }
 
 .books-shell--library .books-sidebar-group--library-status {
-  gap: 6px;
-  padding: 8px 4px 0;
+  gap: 4px;
+  padding: 6px 4px 0;
   background: transparent;
   border-color: transparent;
 }
 
-.books-shell--library .books-sidebar-group__button span:last-child {
-  font-size: 0.78rem;
+.books-shell--library .books-sidebar-group__button {
+  justify-content: flex-start;
+  gap: 0.6rem;
+  min-height: 38px;
+  padding: 0.56rem 0.76rem;
+}
+
+.books-shell--library .books-sidebar-group__hint {
+  margin-left: auto;
+  color: color-mix(in srgb, var(--books-text-secondary) 88%, transparent);
+  font-size: 0.74rem;
 }
 
 .books-shell--reader .books-toolbar,

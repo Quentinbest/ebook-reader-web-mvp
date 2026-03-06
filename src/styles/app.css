@@ -228,24 +228,25 @@ textarea {
 
 .telemetry-notice--compact {
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .telemetry-notice--compact .telemetry-notice__copy {
-  gap: 2px;
+  gap: 1px;
 }
 
 .telemetry-notice--compact .telemetry-notice__copy strong {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
 }
 
 .telemetry-notice--compact p {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
 }
 
 .telemetry-notice--compact label {
-  font-size: 0.84rem;
-  font-weight: 560;
+  font-size: 0.78rem;
+  font-weight: 520;
   color: var(--books-text-secondary);
 }
 
