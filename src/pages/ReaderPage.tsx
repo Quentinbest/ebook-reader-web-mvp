@@ -515,15 +515,14 @@ export default function ReaderPage(): JSX.Element {
             <h2>当前书籍</h2>
             <p className="books-sidebar-group__title">{book.title}</p>
             <p className="books-sidebar-group__byline">{book.author || "未知作者"}</p>
-            <div className="books-sidebar-group__meta-line">
-              <span>{book.format.toUpperCase()}</span>
-              <span>{Math.round(currentPercent)}% 已读</span>
-            </div>
-            <div className="books-sidebar-group__meta-line">
-              <span>{pageLayout === "single" ? "单页版式" : "双页版式"}</span>
-              <span>{annotations.length} 条批注</span>
-            </div>
-            <p className="books-sidebar-group__locator">{currentLocator === "start" ? "从开头开始" : `当前位置：${currentLocator}`}</p>
+            <p className="books-sidebar-group__summary">
+              {book.format.toUpperCase()} · {Math.round(currentPercent)}% 已读 · {annotations.length} 条批注
+            </p>
+            {currentLocator !== "start" ? (
+              <p className="books-sidebar-group__locator">当前位置：{currentLocator}</p>
+            ) : (
+              <p className="books-sidebar-group__locator">从开头开始 · {pageLayout === "single" ? "单页版式" : "双页版式"}</p>
+            )}
           </section>
         </>
       }

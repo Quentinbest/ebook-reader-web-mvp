@@ -613,12 +613,6 @@ export default function EpubViewport({
           <button type="button" className="pdf-icon-btn" aria-label="上一页" disabled={!canPrev} onClick={() => turnPage("prev")}>
             ‹
           </button>
-          <button type="button" className="pdf-icon-btn is-muted" aria-label="占位按钮" disabled>
-            ↶
-          </button>
-          <button type="button" className="pdf-icon-btn is-muted" aria-label="占位按钮" disabled>
-            ↷
-          </button>
         </div>
 
         <span className="pdf-page-indicator" aria-live="polite">
@@ -642,18 +636,12 @@ export default function EpubViewport({
         />
 
         <div className="pdf-bottom-bar__cluster pdf-bottom-bar__cluster--right">
-          <button type="button" className="pdf-icon-btn pdf-icon-btn--headset" aria-label="听书（即将上线）" disabled>
-            🎧
-          </button>
           <button type="button" className="pdf-icon-btn" aria-label="下一页" disabled={!canNext} onClick={() => turnPage("next")}>
             ›
           </button>
           <button type="button" className="pdf-icon-btn" aria-label="最后一页" disabled={!canNext} onClick={jumpToEnd}>
             »
           </button>
-          <span className="pdf-page-indicator-secondary" aria-hidden>
-            {Math.round(progressPercent)} / 100
-          </span>
         </div>
       </div>
     </section>
