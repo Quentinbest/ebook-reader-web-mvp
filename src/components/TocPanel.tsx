@@ -20,21 +20,21 @@ type TocPanelProps = {
 
 function resolveTocMetaLabel(href: string | undefined, fallbackOrder: number | undefined): string {
   if (!href) {
-    return fallbackOrder ? String(fallbackOrder) : "";
+    return fallbackOrder ? `p. ${fallbackOrder}` : "";
   }
 
   const pdfPage = href.match(/^pdf:page:(\d+)$/i);
   if (pdfPage) {
-    return `p.${pdfPage[1]}`;
+    return `p. ${pdfPage[1]}`;
   }
 
   const normalized = href.replace(/[#?].*$/, "");
   const chapterLike = normalized.match(/(?:chapter|ch|part|sec|section|book|vol|volume)[^\d]{0,3}(\d{1,4})/i);
   if (chapterLike) {
-    return `Ch.${chapterLike[1]}`;
+    return `p. ${chapterLike[1]}`;
   }
 
-  return fallbackOrder ? `#${fallbackOrder}` : "";
+  return fallbackOrder ? `p. ${fallbackOrder}` : "";
 }
 
 function TocTreeItem({
@@ -215,7 +215,7 @@ export default function TocPanel({
   const coverLabel = (bookTitle || "目录").trim().charAt(0) || "目";
 
   const content = (
-    <section className="toc-panel">
+    <section className={`toc-panel ${mode === "content" ? "toc-panel--content" : ""}`.trim()}>
       <div className="toc-panel__book">
         <div className="toc-panel__cover" aria-hidden>
           {bookCoverUrl ? <img src={bookCoverUrl} alt="" loading="lazy" /> : coverLabel}

@@ -74,6 +74,15 @@ export default function ReaderPage(): JSX.Element {
   const noticeTimerRef = useRef<number | null>(null);
   const requestedLocator = useMemo(() => searchParams.get("locator") ?? undefined, [searchParams]);
 
+  const clearNotice = useCallback(() => {
+    setNotice(null);
+
+    if (noticeTimerRef.current) {
+      window.clearTimeout(noticeTimerRef.current);
+      noticeTimerRef.current = null;
+    }
+  }, []);
+
   const showNotice = useCallback((message: string) => {
     setNotice(message);
 
@@ -148,6 +157,7 @@ export default function ReaderPage(): JSX.Element {
     async function load(): Promise<void> {
       setLoading(true);
       setError(null);
+      clearNotice();
       setActivePane(null);
       setTocError(null);
       setCurrentHref(undefined);
@@ -217,7 +227,7 @@ export default function ReaderPage(): JSX.Element {
     return () => {
       active = false;
     };
-  }, [bookId, requestedLocator]);
+  }, [bookId, clearNotice, requestedLocator]);
 
   useEffect(() => {
     if (!book || !currentLocator) {
@@ -301,6 +311,7 @@ export default function ReaderPage(): JSX.Element {
   }
 
   function navigateToLocator(locator: string): void {
+    clearNotice();
     setTargetLocator(locator);
     setCurrentHref(locator);
     setActivePane(null);
@@ -490,9 +501,6 @@ export default function ReaderPage(): JSX.Element {
             <h2>当前书籍</h2>
             <p className="books-sidebar-group__title">{book.title}</p>
             <p>{book.author || "未知作者"}</p>
-          </section>
-          <section className="books-sidebar-group books-sidebar-group--muted">
-            <h2>阅读状态</h2>
             <p>{book.format.toUpperCase()} · {Math.round(currentPercent)}% 已读</p>
             <p>{pageLayout === "single" ? "单页版式" : "双页版式"} · {annotations.length} 条批注</p>
             <p>{currentLocator === "start" ? "从开头开始" : `当前位置：${currentLocator}`}</p>

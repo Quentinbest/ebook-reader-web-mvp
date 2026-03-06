@@ -114,6 +114,15 @@ function buildDisplayCandidates(target: string, book: any): string[] {
     } catch {
       // Continue with spine-based fallback.
     }
+
+    try {
+      const resolvedCanonical = book.resolve(pathPart, true);
+      if (typeof resolvedCanonical === "string" && resolvedCanonical) {
+        candidates.push(`${resolvedCanonical}${hash}`);
+      }
+    } catch {
+      // Continue with spine-based fallback.
+    }
   }
 
   const spineItems = Array.isArray(book?.spine?.spineItems) ? book.spine.spineItems : [];
@@ -132,6 +141,26 @@ function buildDisplayCandidates(target: string, book: any): string[] {
 
     if (targetMatchesItem) {
       candidates.push(`${itemHref}${hash}`);
+
+      if (typeof book?.resolve === "function") {
+        try {
+          const resolvedItem = book.resolve(itemHref, false);
+          if (typeof resolvedItem === "string" && resolvedItem) {
+            candidates.push(`${resolvedItem}${hash}`);
+          }
+        } catch {
+          // Ignore and continue collecting candidates.
+        }
+
+        try {
+          const resolvedItemCanonical = book.resolve(itemHref, true);
+          if (typeof resolvedItemCanonical === "string" && resolvedItemCanonical) {
+            candidates.push(`${resolvedItemCanonical}${hash}`);
+          }
+        } catch {
+          // Ignore and continue collecting candidates.
+        }
+      }
     }
   }
 
@@ -462,6 +491,36 @@ export default function EpubViewport({
     let cancelled = false;
 
     const navigate = async (): Promise<void> => {
+      if (sanitized.toLowerCase() === "start") {
+        try {
+          await renditionRef.current.display();
+        } catch {
+          if (!cancelled) {
+            callbacksRef.current.onNavigationError("无法跳转到该章节");
+          }
+        }
+        return;
+      }
+
+      if (sanitized.toLowerCase() === "end") {
+        const spineItems = Array.isArray(bookRef.current?.spine?.spineItems) ? bookRef.current.spine.spineItems : [];
+        const lastItem = spineItems[spineItems.length - 1];
+        if (!lastItem?.href) {
+          if (!cancelled) {
+            callbacksRef.current.onNavigationError("无法跳转到该章节");
+          }
+          return;
+        }
+        try {
+          await renditionRef.current.display(lastItem.href);
+        } catch {
+          if (!cancelled) {
+            callbacksRef.current.onNavigationError("无法跳转到该章节");
+          }
+        }
+        return;
+      }
+
       const candidates = buildDisplayCandidates(sanitized, bookRef.current);
 
       for (const candidate of candidates) {
