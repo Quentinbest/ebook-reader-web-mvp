@@ -448,20 +448,22 @@
   }
 
   .books-sidebar__primary {
-    gap: 10px;
+    gap: 8px;
   }
 
   .books-sidebar__brand {
-    gap: 2px;
+    gap: 1px;
   }
 
   .books-sidebar__eyebrow {
-    font-size: 0.66rem;
-    letter-spacing: 0.08em;
+    font-size: 0.58rem;
+    letter-spacing: 0.09em;
+    color: color-mix(in srgb, var(--books-text-secondary) 72%, transparent);
   }
 
   .books-sidebar__brand strong {
-    font-size: 1.08rem;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
   }
 
   .books-sidebar__nav {
@@ -497,8 +499,8 @@
   .books-toolbar {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
-    padding: 10px 2px 0;
+    gap: 10px;
+    padding: 8px 2px 0;
     border-bottom: 0;
   }
 
@@ -510,16 +512,17 @@
   }
 
   .books-toolbar__leading {
-    gap: 10px;
+    gap: 8px;
   }
 
   .books-toolbar__title h1 {
-    font-size: clamp(1.45rem, 7vw, 1.9rem);
-    line-height: 1.08;
+    font-size: clamp(1.38rem, 6.5vw, 1.8rem);
+    line-height: 1.06;
+    letter-spacing: -0.035em;
   }
 
   .books-toolbar__title p {
-    font-size: 0.88rem;
+    font-size: 0.82rem;
   }
 
   .books-content {
@@ -528,6 +531,26 @@
 
   .books-shell--library .books-sidebar__content {
     display: grid;
+  }
+
+  .books-shell--library .books-sidebar {
+    gap: 10px;
+    padding: 10px 12px 12px;
+    border-radius: 16px;
+  }
+
+  .books-shell--library .books-sidebar__brand {
+    padding: 0 2px 1px;
+  }
+
+  .books-shell--library .books-sidebar__eyebrow {
+    font-size: 0.56rem;
+    letter-spacing: 0.09em;
+  }
+
+  .books-shell--library .books-sidebar__brand strong {
+    font-size: 0.96rem;
+    font-weight: 620;
   }
 
   .books-shell--library .books-sidebar-group--library-nav {
@@ -571,11 +594,24 @@
 
   .books-shell--reader .books-toolbar,
   .books-shell--notes .books-toolbar {
-    padding-top: 4px;
+    gap: 8px;
+    padding-top: 2px;
   }
 
   .books-shell--reader .books-toolbar__trailing,
   .books-shell--notes .books-toolbar__trailing {
     justify-content: flex-start;
+  }
+
+  .books-shell--reader .books-toolbar__title h1,
+  .books-shell--notes .books-toolbar__title h1 {
+    font-size: 0.9rem;
+    line-height: 1.24;
+    font-weight: 600;
+  }
+
+  .books-shell--reader .books-toolbar__title p,
+  .books-shell--notes .books-toolbar__title p {
+    font-size: 0.74rem;
   }
 }

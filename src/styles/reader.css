@@ -951,7 +951,7 @@
     width: 100%;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
+    gap: 5px;
     justify-content: stretch;
   }
 
@@ -959,12 +959,17 @@
     min-height: 32px;
     width: 100%;
     justify-content: center;
-    padding: 0.42rem 0.24rem;
-    border-radius: 12px;
+    padding: 0.4rem 0.2rem;
+    border-radius: 10px;
+  }
+
+  .reader-toolbar-action svg {
+    width: 15px;
+    height: 15px;
   }
 
   .reader-toolbar-action__label {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
   }
 
   .reader-inline-progress {
@@ -972,7 +977,7 @@
     min-height: 28px;
     padding: 0 2px 0 0;
     gap: 5px;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
   }
 
   .reader-inline-progress__track {
@@ -982,6 +987,7 @@
   .reader-toolbar-status {
     grid-column: span 2;
     justify-content: end;
+    min-height: 28px;
   }
 
   .reader-page {
@@ -1046,6 +1052,10 @@
     line-height: 1.42;
   }
 
+  .search-panel__status {
+    font-size: 0.78rem;
+  }
+
   .settings-preview {
     gap: 8px;
     padding: 14px;
@@ -1064,6 +1074,11 @@
   .settings-panel__group {
     gap: 8px;
     padding: 11px 0 12px;
+  }
+
+  .settings-panel__label,
+  .settings-field > span {
+    font-size: 0.78rem;
   }
 
   .settings-segmented {
